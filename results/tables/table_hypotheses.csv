@@ -1,0 +1,8 @@
+Question,Comparison,Population,Delta AUROC [95% CI],Delta Brier [95% CI],Decision
+H1 / RQ1b,Proposed - E4 Early fusion,full test set,"-0.008 [-0.019, 0.003]","0.007 [-0.001, 0.014]",not supported
+RQ1,"E4 Early fusion - E2 GRU, clinical history only",full test set,"0.000 [-0.006, 0.007]","0.000 [-0.002, 0.003]",no meaningful improvement
+Supplementary,Proposed - E1 Gradient boosting (clinical + MRI),full test set,"0.001 [-0.016, 0.019]","0.003 [-0.007, 0.012]",-
+Supplementary,"Proposed - E2 GRU, clinical history only",full test set,"-0.007 [-0.019, 0.004]","0.007 [-0.001, 0.015]",-
+H2,AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed,test windows with MRI,"0.009 [-0.004, 0.024]",-,not supported
+H2 (supplementary),AUROC loss when MRI removed: E4 Early fusion minus Proposed,test windows with MRI,"0.005 [-0.004, 0.015]",-,-
+H2 (supplementary),AUROC loss when MRI removed: E4 Late fusion minus Proposed,test windows with MRI,"-0.001 [-0.018, 0.017]",-,-

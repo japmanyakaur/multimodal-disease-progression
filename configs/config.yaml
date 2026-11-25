@@ -1,0 +1,51 @@
+# All settings for the pipeline live here. Change a value, re-run run_all.py.
+
+seed: 2026
+
+data:
+  source: synthetic                 # "synthetic" or "adni"
+  synthetic_csv: data/synthetic/ADNIMERGE_synthetic.csv
+  adni_csv: data/adni/ADNIMERGE.csv # never committed to git
+  n_participants: 1800
+
+cohort:
+  index_diagnosis: MCI
+  horizon_months: 24                # forecast horizon h
+  tolerance_months: 3               # outcome-window tolerance
+  max_history_visits: 8             # longest visit history fed to the GRU
+  mri_days_before_index: 200        # MRI must be acquired in [t0 - 200 d, t0 + 30 d]
+  mri_days_after_index: 30
+  cutoff_days_after_index: 30       # predictor cut-off = t0 + 30 days
+
+splits:                             # participant-level fractions
+  test: 0.20
+  calibration: 0.10
+  validation_of_development: 0.15
+
+training:
+  seeds: [0, 1, 2, 3, 4]
+  max_epochs: 80
+  patience: 10
+  batch_size: 64
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  hidden_size: 32
+  dropout: 0.2
+  attention_heads: 2
+  p_drop_mri: 0.30                  # modality-dropout probability (proposed model)
+  p_drop_clinical: 0.10
+  sensitivity_p_drop_mri: [0.15, 0.50]
+
+evaluation:                         # pre-specified before the test set is opened
+  primary_metric: auroc
+  bootstrap_replicates: 2000
+  min_meaningful_difference: 0.02   # AUROC
+  brier_noninferiority_margin: 0.01
+  ece_bins: 10
+  conformal_alpha: 0.10             # 90% coverage target
+  stability_top_k: 3
+  stability_min_spearman: 0.70      # dashboard warns below this
+  perturbation_sd: 0.10             # in standard-deviation units
+  missing_fractions: [0.0, 0.25, 0.50, 0.75, 1.0]
+  mri_noise_sd: 1.0                 # degraded-MRI stress test, SD units
+  subgroups: [sex, age_band, dx_bl]

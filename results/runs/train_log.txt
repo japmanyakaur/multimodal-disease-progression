@@ -1,0 +1,67 @@
+E1 classical baselines
+  e1_lr_clin       CV AUROC 0.908  params {'C': 0.01}
+  e1_gbm_clin      CV AUROC 0.897  params {'learning_rate': 0.05, 'max_leaf_nodes': 8}
+  e1_lr_clinmri    CV AUROC 0.908  params {'C': 0.01}
+  e1_gbm_clinmri   CV AUROC 0.900  params {'learning_rate': 0.05, 'max_leaf_nodes': 31}
+Training 60 neural runs (12 models x 5 seeds)
+  e2_clinical      seed 0  val AUROC 0.911  epoch  4    1.1s
+  e2_clinical      seed 3  val AUROC 0.909  epoch  3    1.1s
+  e2_clinical      seed 1  val AUROC 0.910  epoch  4    1.2s
+  e2_clinical      seed 2  val AUROC 0.908  epoch  5    1.3s
+  e3_mri           seed 1  val AUROC 0.796  epoch 11    0.5s
+  e3_mri           seed 0  val AUROC 0.792  epoch 11    0.6s
+  e3_mri           seed 2  val AUROC 0.790  epoch 14    0.7s
+  e3_mri           seed 3  val AUROC 0.786  epoch  9    0.4s
+  e2_clinical      seed 4  val AUROC 0.912  epoch  4    1.2s
+  e3_mri           seed 4  val AUROC 0.784  epoch 24    0.9s
+  e4_early         seed 0  val AUROC 0.918  epoch  3    1.3s
+  e4_early         seed 1  val AUROC 0.915  epoch  4    1.2s
+  e4_early         seed 2  val AUROC 0.915  epoch  3    1.2s
+  e4_early         seed 3  val AUROC 0.915  epoch  4    1.3s
+  e4_early         seed 4  val AUROC 0.912  epoch  5    1.4s
+  e4_xattn         seed 0  val AUROC 0.906  epoch  2    1.7s
+  e4_xattn         seed 1  val AUROC 0.904  epoch  3    2.2s
+  e4_xattn         seed 2  val AUROC 0.907  epoch  2    2.0s
+  e4_xattn         seed 3  val AUROC 0.904  epoch  2    2.0s
+  e4_xattn         seed 4  val AUROC 0.906  epoch  1    1.9s
+  e5_proposed      seed 0  val AUROC 0.905  epoch  9    3.4s
+  e5_proposed      seed 2  val AUROC 0.905  epoch  8    3.1s
+  e5_proposed      seed 1  val AUROC 0.910  epoch 12    3.9s
+  e5_proposed      seed 3  val AUROC 0.912  epoch  8    3.6s
+  abl_no_gate      seed 0  val AUROC 0.907  epoch  4    2.4s
+  abl_no_gate      seed 2  val AUROC 0.908  epoch  8    3.0s
+  e5_proposed      seed 4  val AUROC 0.913  epoch 14    4.6s
+  abl_no_gate      seed 1  val AUROC 0.913  epoch 12    3.7s
+  abl_no_xattn     seed 1  val AUROC 0.914  epoch  4    1.4s
+  abl_no_xattn     seed 0  val AUROC 0.912  epoch  4    1.5s
+  abl_no_gate      seed 3  val AUROC 0.909  epoch  8    3.0s
+  abl_no_xattn     seed 2  val AUROC 0.911  epoch  4    1.3s
+  abl_no_xattn     seed 4  val AUROC 0.912  epoch  3    1.3s
+  abl_no_xattn     seed 3  val AUROC 0.914  epoch  4    1.5s
+  abl_no_gate      seed 4  val AUROC 0.910  epoch 12    3.7s
+  abl_no_time      seed 1  val AUROC 0.899  epoch  4    2.5s
+  abl_no_time      seed 2  val AUROC 0.909  epoch  8    3.4s
+  abl_no_time      seed 0  val AUROC 0.905  epoch 11    3.8s
+  abl_no_time      seed 3  val AUROC 0.908  epoch 14    4.4s
+  abl_no_time      seed 4  val AUROC 0.905  epoch 14    4.2s
+  abl_no_mask      seed 1  val AUROC 0.910  epoch 12    4.2s
+  abl_no_mask      seed 0  val AUROC 0.915  epoch 13    4.4s
+  abl_no_mask      seed 2  val AUROC 0.911  epoch  9    3.4s
+  abl_no_mask      seed 3  val AUROC 0.911  epoch  8    3.0s
+  abl_no_mask      seed 4  val AUROC 0.912  epoch 12    4.1s
+  abl_no_moddrop   seed 0  val AUROC 0.900  epoch 12    4.1s
+  abl_no_moddrop   seed 1  val AUROC 0.910  epoch  9    3.5s
+  abl_no_moddrop   seed 2  val AUROC 0.896  epoch  8    2.9s
+  abl_no_moddrop   seed 3  val AUROC 0.900  epoch  9    3.3s
+  sens_pdrop_015   seed 0  val AUROC 0.905  epoch 11    3.6s
+  sens_pdrop_015   seed 1  val AUROC 0.909  epoch 12    3.9s
+  abl_no_moddrop   seed 4  val AUROC 0.908  epoch 19    5.2s
+  sens_pdrop_015   seed 2  val AUROC 0.906  epoch  8    3.3s
+  sens_pdrop_015   seed 3  val AUROC 0.909  epoch 10    3.4s
+  sens_pdrop_050   seed 0  val AUROC 0.906  epoch  6    2.6s
+  sens_pdrop_015   seed 4  val AUROC 0.912  epoch  8    3.2s
+  sens_pdrop_050   seed 1  val AUROC 0.909  epoch  4    2.6s
+  sens_pdrop_050   seed 2  val AUROC 0.908  epoch  5    2.8s
+  sens_pdrop_050   seed 3  val AUROC 0.910  epoch  8    3.2s
+  sens_pdrop_050   seed 4  val AUROC 0.913  epoch 11    3.7s
+Done in 46s

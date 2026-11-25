@@ -1,0 +1,6 @@
+MRI quality,Windows,Mean MRI weight alpha_MRI,SD
+good,395,0.514,0.023
+acceptable,134,0.524,0.009
+poor,53,0.477,0.009
+degraded + flagged poor (stress test),582,0.476,0.01
+MRI missing,129,0.0,0.0
