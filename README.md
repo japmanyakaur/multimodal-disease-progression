@@ -1,7 +1,6 @@
 # Trustworthy Multimodal Learning for Longitudinal Disease Progression Prediction
 
-M.Tech final-semester project (IIT Patna). Forecasts whether a patient with
-Mild Cognitive Impairment converts to Alzheimer's dementia within **24 months**,
+Forecasts whether a patient with Mild Cognitive Impairment converts to Alzheimer's dementia within **24 months**,
 using longitudinal clinical/cognitive history and MRI-derived brain measures,
 and evaluates calibration, uncertainty, missing-modality robustness and
 explanation stability.
