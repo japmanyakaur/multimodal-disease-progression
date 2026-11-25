@@ -18,7 +18,7 @@ import streamlit as st  # noqa: E402
 import torch  # noqa: E402
 
 from mdp import metrics as M  # noqa: E402
-from mdp.config import MODELS, PROCESSED, RESULTS, RUNS, TABLES, data_csv, load_config  # noqa: E402
+from mdp.config import MODELS, PROCESSED, RESULTS, RUNS, data_csv, load_config  # noqa: E402
 from mdp.explain import FEATURE_NAMES, feature_vector, integrated_gradients  # noqa: E402
 from mdp.features import SCORE_NAMES  # noqa: E402
 from mdp.models import FusionModel  # noqa: E402
@@ -49,13 +49,12 @@ def load():
         m.load_state_dict(torch.load(path))
         models.append(m.eval())
     summary = json.load(open(RESULTS / "metrics_summary.json"))
-    conformal = pd.read_csv(TABLES / "table_conformal.csv")
-    q_hat = float(conformal[conformal.Model.str.startswith("E5")].q_hat.iloc[0])
+    q_mondrian = {int(k): float(v) for k, v in summary["conformal_qhat"]["e5_proposed"]["mondrian"].items()}
     stability = json.load(open(MODELS / "e5_proposed" / "stability.json"))
     dev = cohort.split != "test"
     return dict(cfg=cfg, cohort=cohort, arrays=arrays, data=to_tensors(arrays), visits=visits, models=models,
                 version=digest.hexdigest()[:12], T=summary["temperatures"]["e5_proposed"],
-                thr=summary["thresholds"]["e5_proposed"], q_hat=q_hat, stability=stability, summary=summary,
+                thr=summary["thresholds"]["e5_proposed"], q=q_mondrian, stability=stability, summary=summary,
                 base_rate=float(cohort[dev].label.mean()))
 
 
@@ -151,11 +150,11 @@ with tab2:
 
 with tab3:
     st.subheader(f"Forecast: probability of dementia within {S['cfg']['cohort']['horizon_months']} months")
-    has0, has1 = p <= S["q_hat"], (1 - p) <= S["q_hat"]
+    has0, has1 = p <= S["q"][0], (1 - p) <= S["q"][1]          # class-conditional (Mondrian) conformal set
     pred_set = [n for n, inc in (("stable MCI", has0), ("converter", has1)) if inc]
     c1, c2, c3 = st.columns(3)
     c1.metric("Calibrated probability", f"{p:.1%}")
-    c2.metric("90% conformal prediction set",
+    c2.metric("90% conformal prediction set (per class)",
               "both (uncertain)" if len(pred_set) == 2 else (pred_set[0] if pred_set else "empty"))
     c3.metric("Weight on MRI (reliability gate)", f"{alpha_mri:.2f}")
     st.progress(min(max(p, 0.0), 1.0))
@@ -165,7 +164,8 @@ with tab3:
         f"- Reference: {S['base_rate']:.1%} of development-set windows converted within 24 months.\n"
         f"- Probabilities are temperature-scaled (T = {S['T']:.2f}).\n"
         "- The threshold is tuned to catch converters (high sensitivity), so it flags more cases; the conformal "
-        "set lists every outcome compatible with 90% coverage. The two can differ and answer different questions.")
+        "set lists every outcome compatible with 90% coverage, separately for converters and non-converters. "
+        "The two can differ and answer different questions.")
     if len(pred_set) == 2:
         st.warning("The prediction set contains both outcomes: the model is uncertain for this case.")
     if not has_mri:

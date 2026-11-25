@@ -21,9 +21,12 @@ COLOR = {"e5_proposed": "#2a78d6", "e4_early": "#eb6834", "e4_xattn": "#1baf7a",
 MARKER = {"e5_proposed": "o", "e4_early": "s", "e4_xattn": "^", "e4_late": "D", "e1_gbm_clinmri": "v",
           "e2_clinical": "P", "e3_mri": "X", "e1_lr_clinmri": "*"}
 SHORT = {"e1_lr_clin": "LR (clinical)", "e1_gbm_clin": "GBM (clinical)", "e1_lr_clinmri": "LR (clinical+MRI)",
-         "e1_gbm_clinmri": "GBM (clinical+MRI)", "e2_clinical": "GRU (clinical only)", "e3_mri": "MRI only",
-         "e4_early": "Early fusion", "e4_late": "Late fusion", "e4_xattn": "Cross-attention fusion",
-         "e5_proposed": "Proposed (reliability-aware)"}
+         "e1_gbm_clinmri": "GBM (clinical+MRI)", "e2_clinical": "GRU (clinical only)", "e3_mri": "MRI measures only",
+         "e3_cnn": "3D CNN (MRI only)", "e4_early": "Early fusion", "e4_late": "Late fusion",
+         "e4_xattn": "Cross-attention fusion", "e4_early_cnn": "Early fusion (3D CNN)",
+         "e5_proposed": "Proposed (reliability-aware)", "e5_proposed_cnn": "Proposed (3D CNN)"}
+SET_COLOR = {"Development test (exploratory)": "#898781", "External A": "#1c5cab", "External B": "#86b6ef"}
+SET_MARKER = {"Development test (exploratory)": "s", "External A": "o", "External B": "D"}
 
 plt.rcParams.update({
     "font.family": "DejaVu Sans", "font.size": 9, "axes.edgecolor": AXIS, "axes.labelcolor": INK2,
@@ -87,29 +90,37 @@ def fig_cohort_flow():
     save(fig, "fig_cohort_flow")
 
 
-def fig_main_auroc():
-    t = pd.read_csv(TABLES / "table_main_results.csv")
+
+def fig_auroc_by_cohort():
+    t = pd.read_csv(TABLES / "table_auroc_all_sets.csv")
     keys = list(SHORT)
-    vals = [parse_ci(s) for s in t["AUROC [95% CI]"]]
-    fig, ax = plt.subplots(figsize=(6.6, 3.8))
-    for i, (k, (p, lo, hi)) in enumerate(zip(keys, vals)):
-        c = COLOR["e5_proposed"] if k == "e5_proposed" else INK2
-        ax.plot([lo, hi], [i, i], color=c, lw=1.6, solid_capstyle="round")
-        ax.plot(p, i, "o", color=c, ms=7, mec="white", mew=1.5)
-        ax.text(hi + 0.006, i, f"{p:.3f}", va="center", fontsize=8, color=INK2)
-    ax.set_yticks(range(len(keys)), [SHORT[k] + (" *" if k == "e3_mri" else "") for k in keys])
+    sets = [c for c in t.columns if c != "Model"]
+    fig, ax = plt.subplots(figsize=(7.0, 5.2))
+    offs = {s: o for s, o in zip(sets, (-0.25, 0.0, 0.25))}
+    for i, (k, (_, r)) in enumerate(zip(keys, t.iterrows())):
+        for s in sets:
+            p, lo, hi = parse_ci(r[s])
+            ax.plot([lo, hi], [i + offs[s]] * 2, color=SET_COLOR[s], lw=1.4, solid_capstyle="round")
+            ax.plot(p, i + offs[s], SET_MARKER[s], color=SET_COLOR[s], ms=5.5, mec="white", mew=1,
+                    label=s if i == 0 else None)
+    ax.set_yticks(range(len(keys)), [SHORT[k] + (" *" if k in ("e3_mri", "e3_cnn") else "") for k in keys])
+    for lab in ax.get_yticklabels():
+        if "Proposed" in lab.get_text():
+            lab.set_color(COLOR["e5_proposed"])
+            lab.set_fontweight("bold")
     ax.invert_yaxis()
     ax.grid(axis="y", visible=False)
-    ax.set_xlabel("AUROC on locked test set (95% participant-bootstrap CI)")
-    ax.set_title("Discrimination of all models")
-    ax.text(0, -0.2, "* MRI-only model evaluated on the test windows that have an MRI.", transform=ax.transAxes,
+    ax.set_xlabel("AUROC (95% participant-bootstrap CI)")
+    ax.set_title("Discrimination on the development test set and two independent cohorts")
+    ax.legend(loc="lower left", fontsize=8)
+    ax.text(0, -0.12, "* MRI-only models evaluated on windows that have an MRI.", transform=ax.transAxes,
             fontsize=7.5, color=MUTED)
-    save(fig, "fig_main_auroc")
+    save(fig, "fig_auroc_by_cohort")
 
 
 def fig_roc_pr():
-    pr = pd.read_csv(PREDICTIONS / "test_calibrated.csv.gz")
-    pr = pr[pr.condition == "natural"]
+    pr = pd.read_csv(PREDICTIONS / "calibrated_predictions.csv.gz")
+    pr = pr[(pr.condition == "natural") & (pr.set == "external_A")]
     sel = ["e5_proposed", "e4_early", "e1_gbm_clinmri", "e2_clinical"]
     fig, axes = plt.subplots(1, 2, figsize=(8.0, 3.6))
     for k in sel:
@@ -120,72 +131,56 @@ def fig_roc_pr():
         axes[1].plot(rec, prec, color=COLOR[k], lw=1.6, label=SHORT[k])
     axes[0].plot([0, 1], [0, 1], ls="--", color=AXIS, lw=1)
     axes[1].axhline(pr[pr.model == sel[0]].label.mean(), ls="--", color=AXIS, lw=1)
-    axes[0].set(xlabel="False-positive rate", ylabel="True-positive rate", title="ROC curves")
-    axes[1].set(xlabel="Recall (sensitivity)", ylabel="Precision", title="Precision-recall curves")
+    axes[0].set(xlabel="False-positive rate", ylabel="True-positive rate", title="ROC curves (external A)")
+    axes[1].set(xlabel="Recall (sensitivity)", ylabel="Precision", title="Precision-recall curves (external A)")
     axes[1].legend(loc="lower left", fontsize=8)
     save(fig, "fig_roc_pr")
 
 
 def fig_reliability():
     b = pd.read_csv(TABLES / "data_reliability_bins.csv")
+    b = b[b.set == "external_A"]
     cal = pd.read_csv(TABLES / "table_calibration.csv")
-    pairs = [("e5_proposed", "E5 Proposed reliability-aware fusion"),
-             ("e1_gbm_clinmri", "E1 Gradient boosting (clinical + MRI)")]
+    pairs = [("e5_proposed", "E5 Proposed reliability-aware fusion"), ("e1_gbm_clinmri", "E1 Gradient boosting (clinical + MRI)")]
     fig, axes = plt.subplots(1, 2, figsize=(8.0, 3.7), sharey=True)
     for ax, (k, full) in zip(axes, pairs):
         row = cal[cal.Model == full].iloc[0]
         for stage, color, mk in (("before", MUTED, "s"), ("after", COLOR["e5_proposed"], "o")):
             d = b[(b.model == k) & (b.stage == stage)]
-            lab = (f"Before scaling (ECE {row['ECE before']:.3f})" if stage == "before" else
-                   f"After temperature scaling (ECE {parse_ci(row['ECE after [95% CI]'])[0]:.3f})")
+            lab = (f"Before scaling (ECE {row['ECE before (A)']:.3f})" if stage == "before" else
+                   f"After temperature scaling (ECE {parse_ci(row['ECE after (A) [95% CI]'])[0]:.3f})")
             ax.plot(d.mean_predicted, d.observed_rate, marker=mk, color=color, lw=1.5, ms=5, label=lab)
         ax.plot([0, 1], [0, 1], ls="--", color=AXIS, lw=1)
         ax.set(xlim=(0, 1), ylim=(0, 1), xlabel="Mean predicted probability",
                title=f"{SHORT[k]}  (T = {row['Temperature T']:.2f})")
         ax.legend(loc="upper left", fontsize=7.5)
-    axes[0].set_ylabel("Observed conversion rate")
+    axes[0].set_ylabel("Observed conversion rate (external A)")
     save(fig, "fig_reliability")
 
 
 def fig_missing_modality():
     c = pd.read_csv(TABLES / "data_degradation_curve.csv")
-    s = pd.read_csv(TABLES / "table_missing_modality.csv")
     order = ["e5_proposed", "e4_early", "e4_xattn", "e4_late", "e1_gbm_clinmri", "e2_clinical"]
-    fig, axes = plt.subplots(1, 2, figsize=(9.0, 3.7), gridspec_kw={"width_ratios": [1.5, 1]})
-    ax = axes[0]
-    for k in order:
-        d = c[c.model == k]
-        ax.plot(d.fraction_mri_removed * 100, d.auroc, color=COLOR[k], marker=MARKER[k], lw=1.6, ms=6,
-                mec="white", mew=1, label=SHORT[k])
-    ax.set(xlabel="Test windows with MRI removed (%)", ylabel="AUROC", title="Random MRI removal")
-    ax.set_xticks([0, 25, 50, 75, 100])
-    ax.set_ylim(0.85, 0.90)
-    ax.legend(fontsize=7.5, loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=3)
-    ax2 = axes[1]
-    labels = {"E5 Proposed reliability-aware fusion": "e5_proposed", "E4 Early fusion": "e4_early",
-              "E4 Cross-attention fusion": "e4_xattn", "E4 Late fusion": "e4_late"}
-    rows = s[s.Model.isin(labels)]
-    y = np.arange(len(rows))
-    for i, (_, r) in enumerate(rows.iterrows()):
-        k = labels[r.Model]
-        ax2.barh(i, r["MRI only (history masked)"], color=COLOR[k], height=0.6)
-        ax2.text(r["MRI only (history masked)"] + 0.005, i, f"{r['MRI only (history masked)']:.3f}", va="center",
-                 fontsize=8, color=INK2)
-    ax2.set_yticks(y, [SHORT[labels[m]] for m in rows.Model])
-    ax2.invert_yaxis()
-    ax2.set_xlim(0.5, 0.82)
-    ax2.grid(axis="y", visible=False)
-    ax2.set(xlabel="AUROC", title="Clinical history removed (MRI only)")
-    fig.subplots_adjust(wspace=0.75)
+    fig, axes = plt.subplots(1, 2, figsize=(9.0, 3.8), sharey=True)
+    for ax, key, title in zip(axes, ("external_A", "external_B"), ("External A", "External B (degraded-imaging site)")):
+        for k in order:
+            d = c[(c.model == k) & (c.set == key)]
+            ax.plot(d.fraction_mri_removed * 100, d.auroc, color=COLOR[k], marker=MARKER[k], lw=1.6, ms=6,
+                    mec="white", mew=1, label=SHORT[k])
+        ax.set(xlabel="Windows with MRI removed (%)", title=title)
+        ax.set_xticks([0, 25, 50, 75, 100])
+    axes[0].set_ylabel("AUROC (windows with an MRI)")
+    axes[0].legend(fontsize=7.5, loc="upper center", bbox_to_anchor=(1.05, -0.2), ncol=3)
     save(fig, "fig_missing_modality")
 
 
 def fig_ablation():
     a = pd.read_csv(TABLES / "table_ablation.csv")
     a = a[a.Variant != "Full proposed model"]
-    fig, ax = plt.subplots(figsize=(6.2, 2.9))
+    fig, ax = plt.subplots(figsize=(6.4, 3.0))
+    col = "Delta vs full, external A [95% CI]"
     for i, (_, r) in enumerate(a.iterrows()):
-        p, lo, hi = parse_ci(r["Delta AUROC vs full [95% CI]"])
+        p, lo, hi = parse_ci(r[col])
         c = COLOR["e5_proposed"] if hi < 0 or lo > 0 else INK2
         ax.plot([lo, hi], [i, i], color=c, lw=1.6, solid_capstyle="round")
         ax.plot(p, i, "o", color=c, ms=7, mec="white", mew=1.5)
@@ -193,7 +188,7 @@ def fig_ablation():
     ax.set_yticks(range(len(a)), [v.replace("- ", "without ") for v in a.Variant])
     ax.invert_yaxis()
     ax.grid(axis="y", visible=False)
-    ax.set(xlabel="Change in test AUROC vs full proposed model (95% CI)", title="Ablation study")
+    ax.set(xlabel="Change in AUROC vs full proposed model, external A (95% CI)", title="Ablation study")
     ax.text(0, -0.32, "Blue: confidence interval excludes zero. Negative = removing the component hurts.",
             transform=ax.transAxes, fontsize=7.5, color=MUTED)
     save(fig, "fig_ablation")
@@ -224,7 +219,7 @@ def fig_temporal():
     ax.set_xticks(x, ["Index visit", "6 mo", "12 mo", "18 mo", "24 mo", "> 2.5 y"], fontsize=8)
     ax.grid(axis="x", visible=False)
     ax.set(ylabel="Mean |attribution| per visit", xlabel="Time before the index visit",
-           title="Which visits drive the forecast (proposed model)")
+           title="Which visits drive the forecast (proposed model, external A)")
     ax.text(0, -0.32, "Bars: mean over 5 seeds; whiskers: range across seeds.", transform=ax.transAxes,
             fontsize=7.5, color=MUTED)
     save(fig, "fig_temporal_attribution")
@@ -232,21 +227,22 @@ def fig_temporal():
 
 def fig_gate():
     g = pd.read_csv(TABLES / "data_gate_weights.csv")
-    g = g[g.qc > 0]
     names = {1: "Good", 2: "Acceptable", 3: "Poor"}
     shades = {1: "#1c5cab", 2: "#3987e5", 3: "#86b6ef"}
-    fig, ax = plt.subplots(figsize=(5.2, 3.0))
+    fig, axes = plt.subplots(1, 2, figsize=(8.6, 3.2), sharey=True)
     rng = np.random.default_rng(0)
-    for i, q in enumerate((1, 2, 3)):
-        v = g[g.qc == q].alpha_mri.to_numpy()
-        ax.scatter(i + rng.uniform(-0.18, 0.18, len(v)), v, s=9, color=shades[q], alpha=0.6, lw=0)
-        ax.plot([i - 0.28, i + 0.28], [v.mean()] * 2, color=INK, lw=2)
-        ax.text(i + 0.32, v.mean(), f"{v.mean():.3f}", va="center", fontsize=8, color=INK2)
-    ax.axhline(0.5, ls="--", color=AXIS, lw=1)
-    ax.set_xticks([0, 1, 2], [f"{names[q]}\n(n={int((g.qc == q).sum())})" for q in (1, 2, 3)])
-    ax.grid(axis="x", visible=False)
-    ax.set(ylabel="Weight given to MRI (alpha_MRI)", xlabel="MRI quality rating",
-           title="Reliability gate: MRI weight by scan quality")
+    for ax, key, title in zip(axes, ("external_A", "external_B"), ("External A", "External B (degraded-imaging site)")):
+        d = g[(g.set == key) & (g.qc > 0)]
+        for i, q in enumerate((1, 2, 3)):
+            v = d[d.qc == q].alpha_mri.to_numpy()
+            ax.scatter(i + rng.uniform(-0.18, 0.18, len(v)), v, s=7, color=shades[q], alpha=0.5, lw=0)
+            ax.plot([i - 0.28, i + 0.28], [v.mean()] * 2, color=INK, lw=2)
+            ax.text(i + 0.31, v.mean(), f"{v.mean():.2f}", va="center", fontsize=8, color=INK2)
+        ax.axhline(0.5, ls="--", color=AXIS, lw=1)
+        ax.set_xticks([0, 1, 2], [f"{names[q]}\n(n={int((d.qc == q).sum())})" for q in (1, 2, 3)])
+        ax.grid(axis="x", visible=False)
+        ax.set(xlabel="MRI quality rating", title=title)
+    axes[0].set_ylabel("Weight given to MRI (alpha_MRI)")
     save(fig, "fig_gate_weights")
 
 
@@ -273,25 +269,107 @@ def fig_subgroups():
     s = pd.read_csv(TABLES / "table_subgroups.csv")
     col = [c for c in s.columns if c.startswith("AUROC E5")][0]
     s = s[~s[col].str.startswith("suppressed")]
-    fig, ax = plt.subplots(figsize=(6.0, 3.2))
+    fig, ax = plt.subplots(figsize=(6.2, 3.8))
     for i, (_, r) in enumerate(s.iterrows()):
         p, lo, hi = parse_ci(r[col])
         ax.plot([lo, hi], [i, i], color=COLOR["e5_proposed"], lw=1.6)
         ax.plot(p, i, "o", color=COLOR["e5_proposed"], ms=6, mec="white", mew=1.2)
-    overall = json.load(open(RESULTS / "metrics_summary.json"))["test_auroc"]["e5_proposed"]
+    overall = json.load(open(RESULTS / "metrics_summary.json"))["auroc"]["external_A"]["e5_proposed"]
     ax.axvline(overall, ls="--", color=AXIS, lw=1)
     ax.set_yticks(range(len(s)), [f"{a}: {b} (n={w}, events={e})" for a, b, w, e in
                                   zip(s.Subgroup, s.Level, s.Windows, s.Converters)], fontsize=8)
     ax.invert_yaxis()
     ax.grid(axis="y", visible=False)
-    ax.set(xlabel="AUROC (95% CI)", title="Subgroup performance of the proposed model")
+    ax.set(xlabel="AUROC (95% CI)", title="Subgroup performance of the proposed model (external A)")
     save(fig, "fig_subgroups")
+
+
+def fig_conformal():
+    c = pd.read_csv(TABLES / "table_conformal.csv")
+    c = c[c.Model.str.startswith("E5")]
+    sets = ["Development test (exploratory)", "External A", "External B"]
+    fig, axes = plt.subplots(1, 2, figsize=(8.6, 3.2), sharey=True)
+    for ax, cls, title in zip(axes, ("Coverage (converters)", "Coverage (non-converters)"),
+                              ("Converters", "Non-converters")):
+        for j, (method, color) in enumerate((("Standard", MUTED), ("Mondrian", COLOR["e5_proposed"]))):
+            vals = [c[(c.Set == s) & (c.Method == method)][cls].iloc[0] for s in sets]
+            x = np.arange(len(sets)) + (j - 0.5) * 0.36
+            ax.bar(x, vals, width=0.34, color=color, label=f"{method} conformal")
+            for xi, v in zip(x, vals):
+                ax.text(xi, v + 0.01, f"{v:.2f}", ha="center", fontsize=7.5, color=INK2)
+        ax.axhline(0.9, ls="--", color=INK, lw=1)
+        ax.set_xticks(range(3), ["Dev test", "External A", "External B"])
+        ax.set(ylim=(0.5, 1.02), title=f"Coverage among {title.lower()}")
+        ax.grid(axis="x", visible=False)
+    axes[0].set_ylabel("Share of cases whose true outcome is in the set")
+    axes[0].legend(fontsize=7.5, loc="lower left")
+    fig.text(0.01, -0.06, "Dashed line: target coverage 0.90. Proposed model.", fontsize=7.5, color=MUTED)
+    save(fig, "fig_conformal")
+
+
+def fig_regression():
+    t = pd.read_csv(TABLES / "table_regression.csv")
+    d = pd.read_csv(TABLES / "data_regression_external_A.csv")
+    fig, axes = plt.subplots(1, 2, figsize=(9.0, 3.6), gridspec_kw={"width_ratios": [1.1, 1]})
+    ax = axes[0]
+    vals = [parse_ci(v) for v in t["MAE A [95% CI]"]]
+    for i, (name, (p, lo, hi)) in enumerate(zip(t.Model, vals)):
+        c = COLOR["e5_proposed"] if name.startswith("E5") else INK2
+        ax.plot([lo, hi], [i, i], color=c, lw=1.6)
+        ax.plot(p, i, "o", color=c, ms=6, mec="white", mew=1.2)
+        ax.text(hi + 0.01, i, f"{p:.2f}", va="center", fontsize=8, color=INK2)
+    ax.set_yticks(range(len(t)), [m.replace(" (index CDR-SB carried forward)", "\n(carry index value forward)")
+                                  for m in t.Model], fontsize=8)
+    ax.invert_yaxis()
+    ax.grid(axis="y", visible=False)
+    ax.set(xlabel="Mean absolute error, CDR-SB points (95% CI)", title="CDR-SB at 24 months (external A)")
+    ax2 = axes[1]
+    q = float(t[t.Model.str.startswith("E5")]["Interval half-width q (CDR-SB points)"].iloc[0])
+    pred = d["e5_proposed_reg"].to_numpy()
+    ax2.scatter(pred, d.observed, s=6, alpha=0.35, color=COLOR["e5_proposed"], lw=0)
+    lim = [0, max(d.observed.max(), pred.max()) + 0.5]
+    ax2.plot(lim, lim, color=INK, lw=1)
+    ax2.fill_between(lim, [lim[0] - q, lim[1] - q], [lim[0] + q, lim[1] + q], color=COLOR["e5_proposed"], alpha=0.12,
+                     label=f"90% conformal interval (+/-{q:.2f})")
+    ax2.set(xlim=lim, ylim=lim, xlabel="Predicted CDR-SB", ylabel="Observed CDR-SB", title="Proposed model")
+    ax2.legend(fontsize=7.5, loc="upper left")
+    fig.subplots_adjust(wspace=0.5)
+    save(fig, "fig_regression")
+
+
+def fig_gradcam():
+    p = TABLES / "data_gradcam_examples.npz"
+    if not p.exists():
+        return
+    d = np.load(p)
+    sl = 15                                                   # coronal slice through hippocampi and ventricles
+    titles = ["Most anatomical map", "Least anatomical map"]
+    fig, axes = plt.subplots(2, 3, figsize=(7.6, 5.2))
+    for r in range(2):
+        vol = d["volumes"][r].astype(float)
+        axes[r, 0].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
+        axes[r, 0].set_title(f"{titles[r]}: MRI", fontsize=8.5)
+        axes[r, 1].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
+        axes[r, 1].imshow(d["cams"][r].astype(float)[:, sl, :].T, cmap="magma", alpha=0.5, origin="lower", vmin=0, vmax=1)
+        axes[r, 1].set_title(f"Grad-CAM ({d['fraction'][r]:.0%} in hippocampus/ventricles)", fontsize=8.5)
+        axes[r, 2].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
+        axes[r, 2].imshow(d["random_cams"][r].astype(float)[:, sl, :].T, cmap="magma", alpha=0.5, origin="lower",
+                          vmin=0, vmax=1)
+        axes[r, 2].set_title("Randomised weights (sanity check)", fontsize=8.5)
+    for a in axes.flat:
+        a.set_xticks([])
+        a.set_yticks([])
+        a.grid(False)
+    fig.text(0.01, 0.0, "Coronal slice through the hippocampi. Heatmaps are model attributions, not lesion detections.",
+             fontsize=7.5, color=MUTED)
+    save(fig, "fig_gradcam")
 
 
 def main():
     FIGURES.mkdir(parents=True, exist_ok=True)
-    for f in (fig_cohort_flow, fig_main_auroc, fig_roc_pr, fig_reliability, fig_missing_modality, fig_ablation,
-              fig_importance, fig_temporal, fig_gate, fig_stability, fig_subgroups):
+    for f in (fig_cohort_flow, fig_auroc_by_cohort, fig_roc_pr, fig_reliability, fig_missing_modality, fig_ablation,
+              fig_importance, fig_temporal, fig_gate, fig_stability, fig_subgroups, fig_conformal, fig_regression,
+              fig_gradcam):
         f()
 
 
