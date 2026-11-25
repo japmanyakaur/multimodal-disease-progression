@@ -67,10 +67,13 @@ def fig_cohort_flow():
         ax.annotate("", xy=(3.6, b + 0.55), xytext=(3.6, a - 0.55),
                     arrowprops=dict(arrowstyle="-|>", color=MUTED, lw=1.2))
     excl = flow[flow.Stage.str.startswith("Excluded")]
-    lines = "\n".join(f"{s.replace('Excluded: ', '')}: {abs(int(c)):,}" for s, c in zip(excl.Stage, excl.Count))
-    ax.text(7.0, 5.05, "Excluded windows\n" + lines, ha="left", va="center", fontsize=7.5, color=INK2,
-            bbox=dict(boxstyle="round,pad=0.5", fc="white", ec=AXIS), wrap=True)
-    ax.annotate("", xy=(6.95, 5.05), xytext=(3.6, 5.05), arrowprops=dict(arrowstyle="-|>", color=MUTED, lw=1.0))
+    short = {"dementia": "Dementia before index", "no cognitive": "No score at index",
+             "outcome unknown": "Outcome unknown at 24 mo", "next visit": "Next visit inside cut-off"}
+    lines = "\n".join(f"{next(v for k, v in short.items() if k in st)}: {abs(int(c)):,}"
+                      for st, c in zip(excl.Stage, excl.Count))
+    ax.text(6.3, 5.05, "Excluded\n" + lines, ha="left", va="center", fontsize=8, color=INK2,
+            bbox=dict(boxstyle="round,pad=0.5", fc="white", ec=AXIS))
+    ax.annotate("", xy=(6.25, 5.05), xytext=(3.6, 5.05), arrowprops=dict(arrowstyle="-|>", color=MUTED, lw=1.0))
     names = [("train", "Training"), ("validation", "Validation"), ("calibration", "Calibration"),
              ("test", "Locked test")]
     for k, (key, name) in enumerate(names):
@@ -80,7 +83,7 @@ def fig_cohort_flow():
                         f"{int(r.converters)} converters", ha="center", va="center", fontsize=8, color=INK,
                 bbox=dict(boxstyle="round,pad=0.45", fc="white", ec=COLOR["e5_proposed"] if key == "test" else AXIS))
         ax.annotate("", xy=(x, 1.75), xytext=(3.6, 2.9), arrowprops=dict(arrowstyle="-|>", color=MUTED, lw=0.9))
-    ax.text(3.6, 2.45, "participant-level split", ha="center", fontsize=7.5, color=MUTED, style="italic")
+    ax.text(5.2, 2.6, "participant-level split", ha="left", fontsize=7.5, color=MUTED, style="italic")
     save(fig, "fig_cohort_flow")
 
 
@@ -156,7 +159,8 @@ def fig_missing_modality():
                 mec="white", mew=1, label=SHORT[k])
     ax.set(xlabel="Test windows with MRI removed (%)", ylabel="AUROC", title="Random MRI removal")
     ax.set_xticks([0, 25, 50, 75, 100])
-    ax.legend(fontsize=7.5, loc="lower left", ncol=2)
+    ax.set_ylim(0.85, 0.90)
+    ax.legend(fontsize=7.5, loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=3)
     ax2 = axes[1]
     labels = {"E5 Proposed reliability-aware fusion": "e5_proposed", "E4 Early fusion": "e4_early",
               "E4 Cross-attention fusion": "e4_xattn", "E4 Late fusion": "e4_late"}
@@ -172,6 +176,7 @@ def fig_missing_modality():
     ax2.set_xlim(0.5, 0.82)
     ax2.grid(axis="y", visible=False)
     ax2.set(xlabel="AUROC", title="Clinical history removed (MRI only)")
+    fig.subplots_adjust(wspace=0.75)
     save(fig, "fig_missing_modality")
 
 
@@ -204,6 +209,7 @@ def fig_importance():
     axes[1].set(xlabel="Mean |SHAP value| (log-odds)", title="Gradient boosting (clinical + MRI)")
     for ax in axes:
         ax.grid(axis="y", visible=False)
+    fig.subplots_adjust(wspace=0.75)
     save(fig, "fig_importance")
 
 
@@ -215,10 +221,11 @@ def fig_temporal():
     x = np.arange(len(m))
     ax.bar(x, m.to_numpy(), color=COLOR["e5_proposed"], width=0.6)
     ax.errorbar(x, m.to_numpy(), yerr=[m - lo, hi - m], fmt="none", ecolor=INK2, lw=1, capsize=3)
-    ax.set_xticks(x, m.index, rotation=0, fontsize=8)
+    ax.set_xticks(x, ["Index visit", "6 mo", "12 mo", "18 mo", "24 mo", "> 2.5 y"], fontsize=8)
     ax.grid(axis="x", visible=False)
-    ax.set(ylabel="Mean |attribution| per visit", title="Which visits drive the forecast (proposed model)")
-    ax.text(0, -0.25, "Bars: mean over 5 seeds; whiskers: range across seeds.", transform=ax.transAxes,
+    ax.set(ylabel="Mean |attribution| per visit", xlabel="Time before the index visit",
+           title="Which visits drive the forecast (proposed model)")
+    ax.text(0, -0.32, "Bars: mean over 5 seeds; whiskers: range across seeds.", transform=ax.transAxes,
             fontsize=7.5, color=MUTED)
     save(fig, "fig_temporal_attribution")
 
@@ -250,15 +257,15 @@ def fig_stability():
     fig, axes = plt.subplots(1, 3, figsize=(9.0, 2.8), sharey=True)
     for ax, (k, title) in zip(axes, panels):
         v = d[k]
-        ax.hist(v, bins=np.linspace(-0.2, 1, 25), color=COLOR["e5_proposed"], edgecolor="white", linewidth=1)
+        ax.hist(v, bins=np.linspace(0.0, 1, 41), color=COLOR["e5_proposed"], edgecolor="white", linewidth=1)
         ax.axvline(np.median(v), color=INK, lw=1.5)
         ax.axvline(0.7, color=MUTED, lw=1, ls="--")
-        ax.text(np.median(v) - 0.02, ax.get_ylim()[1] * 0.92, f"median {np.median(v):.2f}", ha="right",
-                fontsize=8, color=INK)
+        ax.text(0.03, ax.get_ylim()[1] * 0.92, f"median {np.median(v):.2f}", ha="left", fontsize=8, color=INK)
         ax.set(title=title, xlabel="Spearman rank correlation")
         ax.grid(axis="x", visible=False)
     axes[0].set_ylabel("Pairs of explanations")
-    fig.text(0.01, -0.04, "Dashed line: pre-specified stability threshold (0.70).", fontsize=7.5, color=MUTED)
+    fig.text(0.01, -0.1, "Dashed line: pre-specified stability threshold (0.70). Solid line: median.", fontsize=7.5,
+             color=MUTED)
     save(fig, "fig_stability")
 
 
