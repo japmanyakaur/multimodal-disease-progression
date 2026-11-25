@@ -33,6 +33,7 @@ SCHEDULE = {
 }
 KAPPA = 0.45
 MCI_THRESHOLD, DEMENTIA_THRESHOLD = 1.8, 4.6
+DX_NOISE = 0.5                         # disagreement in clinical judgement
 QC_NOISE = {1: 1.0, 2: 2.0, 3: 4.0}   # measurement-noise multiplier by MRI quality
 
 
@@ -71,6 +72,9 @@ def simulate(n_participants=1800, seed=2026):
         icv = rng.normal(1.35e6 if female else 1.50e6, 1.2e5)
         icv_scale = icv / 1.45e6
         hipp_var = rng.normal(1.0, 0.08)
+        # persistent person-level test-taking differences (language, test familiarity, ...)
+        bias = dict(MMSE=rng.normal(0, 1.2), ADAS13=rng.normal(0, 3.5), CDRSB=rng.normal(0, 0.5),
+                    FAQ=rng.normal(0, 1.5))
         vent_var = float(np.exp(rng.normal(0.0, 0.25)))
 
         start = pd.Timestamp("2005-09-01") + pd.Timedelta(days=int(rng.integers(0, 9 * 365)))
@@ -97,7 +101,7 @@ def simulate(n_participants=1800, seed=2026):
             if month == 0:
                 dx = DX_AT_ENTRY[group]
             else:
-                lat = s_cog + rng.normal(0, 0.25)
+                lat = s_cog + rng.normal(0, DX_NOISE)
                 if dx_prev == "Dementia" and lat > DEMENTIA_THRESHOLD - 0.6:
                     dx = "Dementia"
                 else:
@@ -112,11 +116,11 @@ def simulate(n_participants=1800, seed=2026):
                 AGE=round(age0, 1), PTGENDER="Female" if female else "Male",
                 PTEDUCAT=educ, APOE4=apoe4,
                 MMSE=float(np.clip(round(29.6 - 9 * cog - 3 * fun - 0.4 * age_eff
-                                         + 0.1 * (educ - 16) + rng.normal(0, 1.1)), 0, 30)),
+                                         + 0.1 * (educ - 16) + bias["MMSE"] + rng.normal(0, 1.6)), 0, 30)),
                 ADAS13=float(np.clip(round(6 + 36 * cog + 6 * fun + 1.5 * age_eff
-                                           - 0.4 * (educ - 16) + rng.normal(0, 2.8), 2), 0, 85)),
-                CDRSB=float(np.clip(round(2 * (0.1 + 1.5 * cog + 9.5 * fun + rng.normal(0, 0.5))) / 2, 0, 18)),
-                FAQ=float(np.clip(round(0.2 + 2 * cog + 22 * fun + rng.normal(0, 1.6)), 0, 30)),
+                                           - 0.4 * (educ - 16) + bias["ADAS13"] + rng.normal(0, 4.0), 2), 0, 85)),
+                CDRSB=float(np.clip(round(2 * (0.1 + 1.5 * cog + 9.5 * fun + bias["CDRSB"] + rng.normal(0, 0.8))) / 2, 0, 18)),
+                FAQ=float(np.clip(round(0.2 + 2 * cog + 22 * fun + bias["FAQ"] + rng.normal(0, 2.5)), 0, 30)),
             )
             for col, p_missing in (("MMSE", .03), ("ADAS13", .06), ("CDRSB", .02), ("FAQ", .05)):
                 if month > 0 and rng.random() < p_missing:
