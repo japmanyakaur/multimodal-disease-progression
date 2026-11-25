@@ -345,14 +345,14 @@ def fig_gradcam():
     d = np.load(p)
     sl = 15                                                   # coronal slice through hippocampi and ventricles
     titles = ["Most anatomical map", "Least anatomical map"]
-    fig, axes = plt.subplots(2, 3, figsize=(7.6, 5.2))
+    fig, axes = plt.subplots(2, 3, figsize=(8.8, 5.8))
     for r in range(2):
         vol = d["volumes"][r].astype(float)
         axes[r, 0].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
         axes[r, 0].set_title(f"{titles[r]}:\nMRI", fontsize=8.5)
         axes[r, 1].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
         axes[r, 1].imshow(d["cams"][r].astype(float)[:, sl, :].T, cmap="magma", alpha=0.5, origin="lower", vmin=0, vmax=1)
-        axes[r, 1].set_title(f"Grad-CAM\n({d['fraction'][r]:.0%} in hippocampus/ventricles)", fontsize=8.5)
+        axes[r, 1].set_title(f"Grad-CAM ({d['fraction'][r]:.0%} of map\nin hippocampus/ventricles)", fontsize=8)
         axes[r, 2].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
         axes[r, 2].imshow(d["random_cams"][r].astype(float)[:, sl, :].T, cmap="magma", alpha=0.5, origin="lower",
                           vmin=0, vmax=1)

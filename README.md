@@ -22,15 +22,19 @@ streamlit run dashboard/app.py
 | Path | What it contains |
 |---|---|
 | `configs/config.yaml` | every setting (horizon, splits, seeds, metrics) |
-| `src/mdp/simulate.py` | simulated cohort in ADNIMERGE format |
+| `configs/preregistration_stage2.yaml` | Stage 2 hypotheses and decision rules, committed before the external cohorts existed |
+| `src/mdp/simulate.py` | simulated cohort in ADNIMERGE format (development + external cohorts A and B) |
+| `src/mdp/imaging.py` | rendered 3D MRI volumes, 3D CNN, Grad-CAM |
 | `src/mdp/cohort.py` | index visits, 24-month label, MRI linkage, patient splits, leakage checks |
 | `src/mdp/features.py` | visit sequences, masks, time gaps, summary features |
 | `src/mdp/models.py` | GRU, MRI encoder, early / late / cross-attention / proposed fusion |
 | `src/mdp/train.py` | training loop, classical baselines |
 | `src/mdp/metrics.py` | AUROC, calibration, bootstrap, temperature scaling, conformal |
 | `src/mdp/explain.py` | Integrated Gradients, SHAP, stability measures |
-| `scripts/01..05_*.py` | the five pipeline steps |
-| `results/` | predictions, tables, figures, run records (generated) |
+| `scripts/01..06_*.py` | pipeline steps (data, cohort, training, 3D CNN, evaluation, figures, cards) |
+| `results/` | Stage 2 predictions, tables, figures, run records (generated) |
+| `results/stage1/` | Stage 1 locked-evaluation results, kept unchanged |
+| `docs/DATASET_CARD.md`, `docs/MODEL_CARD.md` | dataset and model documentation (generated) |
 | `dashboard/app.py` | Streamlit research dashboard |
 
 ## Running on real ADNI data
