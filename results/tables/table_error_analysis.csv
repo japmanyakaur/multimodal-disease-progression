@@ -1,0 +1,11 @@
+Error type,Primary category,Count
+False positive,Sparse history (<= 2 visits),262
+False positive,MRI missing,61
+False positive,Poor-quality MRI,20
+False positive,Close to threshold (+/-0.10),57
+False positive,Other (unusual trajectory),187
+False negative,Sparse history (<= 2 visits),45
+False negative,MRI missing,11
+False negative,Poor-quality MRI,5
+False negative,Close to threshold (+/-0.10),20
+False negative,Other (unusual trajectory),30

@@ -1,0 +1,400 @@
+{
+ "strongest_conventional_fusion": "e4_early",
+ "strongest_single_modality": "e2_clinical",
+ "strongest_fusion": "e4_early",
+ "validation_auroc": {
+  "e1_lr_clin": 0.897,
+  "e1_gbm_clin": 0.8854,
+  "e1_lr_clinmri": 0.9047,
+  "e1_gbm_clinmri": 0.8694,
+  "e2_clinical": 0.917,
+  "e4_early": 0.9217,
+  "e4_xattn": 0.9108,
+  "e4_early_cnn": 0.9217,
+  "e5_proposed": 0.9139,
+  "e5_proposed_cnn": 0.92,
+  "abl_no_gate": 0.916,
+  "abl_no_xattn": 0.9172,
+  "abl_no_time": 0.9141,
+  "abl_no_mask": 0.9169,
+  "abl_no_consistency": 0.9146,
+  "abl_no_moddrop": 0.9088,
+  "sens_pdrop_015": 0.9128,
+  "sens_pdrop_050": 0.9166,
+  "e4_late": 0.911
+ },
+ "temperatures": {
+  "e1_lr_clin": 0.901,
+  "e1_gbm_clin": 1.234,
+  "e1_lr_clinmri": 0.888,
+  "e1_gbm_clinmri": 1.692,
+  "e2_clinical": 1.105,
+  "e3_mri": 0.772,
+  "e3_cnn": 0.543,
+  "e4_early": 1.097,
+  "e4_xattn": 1.177,
+  "e4_early_cnn": 1.107,
+  "e5_proposed": 1.123,
+  "e5_proposed_cnn": 1.264,
+  "abl_no_gate": 1.298,
+  "abl_no_xattn": 0.967,
+  "abl_no_time": 1.162,
+  "abl_no_mask": 1.211,
+  "abl_no_consistency": 1.373,
+  "abl_no_moddrop": 1.141,
+  "sens_pdrop_015": 1.198,
+  "sens_pdrop_050": 1.156,
+  "e4_late": 0.684
+ },
+ "thresholds": {
+  "e1_lr_clin": 0.154,
+  "e1_gbm_clin": 0.132,
+  "e1_lr_clinmri": 0.144,
+  "e1_gbm_clinmri": 0.154,
+  "e2_clinical": 0.27,
+  "e3_mri": 0.127,
+  "e3_cnn": 0.195,
+  "e4_early": 0.367,
+  "e4_xattn": 0.098,
+  "e4_early_cnn": 0.227,
+  "e5_proposed": 0.181,
+  "e5_proposed_cnn": 0.15,
+  "abl_no_gate": 0.189,
+  "abl_no_xattn": 0.108,
+  "abl_no_time": 0.183,
+  "abl_no_mask": 0.157,
+  "abl_no_consistency": 0.164,
+  "abl_no_moddrop": 0.169,
+  "sens_pdrop_015": 0.162,
+  "sens_pdrop_050": 0.153,
+  "e4_late": 0.196
+ },
+ "sets": {
+  "dev_test": {
+   "windows": 711,
+   "participants": 182,
+   "events": 135,
+   "with_mri": 582
+  },
+  "external_A": {
+   "windows": 3558,
+   "participants": 919,
+   "events": 763,
+   "with_mri": 2978
+  },
+  "external_B": {
+   "windows": 3315,
+   "participants": 911,
+   "events": 666,
+   "with_mri": 2086
+  }
+ },
+ "auroc": {
+  "dev_test": {
+   "e1_lr_clin": 0.8944,
+   "e1_gbm_clin": 0.8865,
+   "e1_lr_clinmri": 0.8979,
+   "e1_gbm_clinmri": 0.8868,
+   "e2_clinical": 0.8959,
+   "e3_mri": 0.7512,
+   "e3_cnn": 0.712,
+   "e4_early": 0.8973,
+   "e4_late": 0.8964,
+   "e4_xattn": 0.8905,
+   "e4_early_cnn": 0.8991,
+   "e5_proposed": 0.8943,
+   "e5_proposed_cnn": 0.8886
+  },
+  "external_A": {
+   "e1_lr_clin": 0.9009,
+   "e1_gbm_clin": 0.8847,
+   "e1_lr_clinmri": 0.9036,
+   "e1_gbm_clinmri": 0.8805,
+   "e2_clinical": 0.905,
+   "e3_mri": 0.7233,
+   "e3_cnn": 0.6581,
+   "e4_early": 0.9019,
+   "e4_late": 0.8914,
+   "e4_xattn": 0.9008,
+   "e4_early_cnn": 0.9046,
+   "e5_proposed": 0.9031,
+   "e5_proposed_cnn": 0.9016
+  },
+  "external_B": {
+   "e1_lr_clin": 0.9142,
+   "e1_gbm_clin": 0.8983,
+   "e1_lr_clinmri": 0.9137,
+   "e1_gbm_clinmri": 0.8897,
+   "e2_clinical": 0.9165,
+   "e3_mri": 0.7531,
+   "e3_cnn": 0.7043,
+   "e4_early": 0.9095,
+   "e4_late": 0.9122,
+   "e4_xattn": 0.9102,
+   "e4_early_cnn": 0.9146,
+   "e5_proposed": 0.9162,
+   "e5_proposed_cnn": 0.9149
+  }
+ },
+ "hypotheses": [
+  {
+   "Set": "External A",
+   "Role": "confirmatory (primary)",
+   "Question": "H1",
+   "Comparison": "Proposed - E4 Early fusion",
+   "Delta [95% CI]": "0.001 [-0.006, 0.008]",
+   "Delta Brier [95% CI]": "-0.007 [-0.012, -0.002]",
+   "Decision": "not supported"
+  },
+  {
+   "Set": "External A",
+   "Role": "confirmatory (primary)",
+   "Question": "RQ1",
+   "Comparison": "E4 Early fusion - E2 GRU, clinical history only",
+   "Delta [95% CI]": "-0.003 [-0.008, 0.002]",
+   "Delta Brier [95% CI]": "0.007 [0.004, 0.010]",
+   "Decision": "no meaningful improvement"
+  },
+  {
+   "Set": "External A",
+   "Role": "confirmatory (primary)",
+   "Question": "H2",
+   "Comparison": "AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed",
+   "Delta [95% CI]": "-0.002 [-0.007, 0.002]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "not supported"
+  },
+  {
+   "Set": "External A",
+   "Role": "supplementary",
+   "Question": "H2 (other comparator)",
+   "Comparison": "AUROC loss when MRI removed: E4 Early fusion minus Proposed",
+   "Delta [95% CI]": "-0.004 [-0.009, 0.001]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "no difference"
+  },
+  {
+   "Set": "External A",
+   "Role": "supplementary",
+   "Question": "H2 (other comparator)",
+   "Comparison": "AUROC loss when MRI removed: E4 Late fusion minus Proposed",
+   "Delta [95% CI]": "-0.019 [-0.027, -0.012]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "proposed degrades more"
+  },
+  {
+   "Set": "External B",
+   "Role": "confirmatory (secondary)",
+   "Question": "H1 (replication)",
+   "Comparison": "Proposed - E4 Early fusion",
+   "Delta [95% CI]": "0.007 [0.001, 0.013]",
+   "Delta Brier [95% CI]": "-0.007 [-0.012, -0.002]",
+   "Decision": "not supported"
+  },
+  {
+   "Set": "External B",
+   "Role": "confirmatory (secondary)",
+   "Question": "RQ1",
+   "Comparison": "E4 Early fusion - E2 GRU, clinical history only",
+   "Delta [95% CI]": "-0.007 [-0.012, -0.002]",
+   "Delta Brier [95% CI]": "0.007 [0.004, 0.010]",
+   "Decision": "no meaningful improvement"
+  },
+  {
+   "Set": "External B",
+   "Role": "confirmatory (secondary)",
+   "Question": "H2",
+   "Comparison": "AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed",
+   "Delta [95% CI]": "-0.003 [-0.007, 0.001]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "not supported"
+  },
+  {
+   "Set": "External B",
+   "Role": "supplementary",
+   "Question": "H2 (other comparator)",
+   "Comparison": "AUROC loss when MRI removed: E4 Early fusion minus Proposed",
+   "Delta [95% CI]": "-0.006 [-0.010, -0.001]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "proposed degrades more"
+  },
+  {
+   "Set": "External B",
+   "Role": "supplementary",
+   "Question": "H2 (other comparator)",
+   "Comparison": "AUROC loss when MRI removed: E4 Late fusion minus Proposed",
+   "Delta [95% CI]": "-0.008 [-0.017, 0.000]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "no difference"
+  },
+  {
+   "Set": "Development test (exploratory)",
+   "Role": "exploratory",
+   "Question": "H1 (replication)",
+   "Comparison": "Proposed - E4 Early fusion",
+   "Delta [95% CI]": "-0.003 [-0.017, 0.011]",
+   "Delta Brier [95% CI]": "0.003 [-0.008, 0.014]",
+   "Decision": "not supported"
+  },
+  {
+   "Set": "Development test (exploratory)",
+   "Role": "exploratory",
+   "Question": "RQ1",
+   "Comparison": "E4 Early fusion - E2 GRU, clinical history only",
+   "Delta [95% CI]": "0.001 [-0.009, 0.011]",
+   "Delta Brier [95% CI]": "0.003 [-0.002, 0.008]",
+   "Decision": "no meaningful improvement"
+  },
+  {
+   "Set": "Development test (exploratory)",
+   "Role": "exploratory",
+   "Question": "H2",
+   "Comparison": "AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed",
+   "Delta [95% CI]": "0.008 [-0.001, 0.018]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "not supported"
+  },
+  {
+   "Set": "Development test (exploratory)",
+   "Role": "supplementary",
+   "Question": "H2 (other comparator)",
+   "Comparison": "AUROC loss when MRI removed: E4 Early fusion minus Proposed",
+   "Delta [95% CI]": "0.003 [-0.006, 0.012]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "no difference"
+  },
+  {
+   "Set": "Development test (exploratory)",
+   "Role": "supplementary",
+   "Question": "H2 (other comparator)",
+   "Comparison": "AUROC loss when MRI removed: E4 Late fusion minus Proposed",
+   "Delta [95% CI]": "-0.001 [-0.019, 0.018]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "no difference"
+  },
+  {
+   "Set": "External A",
+   "Role": "supplementary (not pre-registered)",
+   "Question": "Supplementary",
+   "Comparison": "Proposed - E1 Gradient boosting (clinical + MRI)",
+   "Delta [95% CI]": "0.023 [0.014, 0.031]",
+   "Delta Brier [95% CI]": "-0.008 [-0.012, -0.003]",
+   "Decision": "-"
+  },
+  {
+   "Set": "External A",
+   "Role": "supplementary (not pre-registered)",
+   "Question": "Supplementary",
+   "Comparison": "Proposed - E2 GRU, clinical history only",
+   "Delta [95% CI]": "-0.002 [-0.007, 0.003]",
+   "Delta Brier [95% CI]": "0.000 [-0.002, 0.003]",
+   "Decision": "-"
+  },
+  {
+   "Set": "External B",
+   "Role": "supplementary (not pre-registered)",
+   "Question": "Supplementary",
+   "Comparison": "Proposed - E1 Gradient boosting (clinical + MRI)",
+   "Delta [95% CI]": "0.026 [0.019, 0.034]",
+   "Delta Brier [95% CI]": "-0.013 [-0.017, -0.009]",
+   "Decision": "-"
+  },
+  {
+   "Set": "External B",
+   "Role": "supplementary (not pre-registered)",
+   "Question": "Supplementary",
+   "Comparison": "Proposed - E2 GRU, clinical history only",
+   "Delta [95% CI]": "-0.000 [-0.004, 0.004]",
+   "Delta Brier [95% CI]": "0.000 [-0.002, 0.003]",
+   "Decision": "-"
+  },
+  {
+   "Set": "External A",
+   "Role": "secondary (3D CNN)",
+   "Question": "3D CNN",
+   "Comparison": "E5 Proposed (3D CNN) - E4 Early fusion (3D CNN)",
+   "Delta [95% CI]": "-0.003 [-0.008, 0.002]",
+   "Delta Brier [95% CI]": "-0.005 [-0.008, -0.002]",
+   "Decision": "-"
+  },
+  {
+   "Set": "External B",
+   "Role": "secondary (3D CNN)",
+   "Question": "3D CNN",
+   "Comparison": "E5 Proposed (3D CNN) - E4 Early fusion (3D CNN)",
+   "Delta [95% CI]": "0.000 [-0.004, 0.004]",
+   "Delta Brier [95% CI]": "-0.004 [-0.007, -0.001]",
+   "Decision": "-"
+  },
+  {
+   "Set": "External A",
+   "Role": "secondary (3D CNN)",
+   "Question": "3D CNN",
+   "Comparison": "E5 Proposed (3D CNN) - E5 Proposed reliability-aware fusion",
+   "Delta [95% CI]": "-0.002 [-0.005, 0.002]",
+   "Delta Brier [95% CI]": "0.000 [-0.002, 0.002]",
+   "Decision": "-"
+  },
+  {
+   "Set": "External B",
+   "Role": "secondary (3D CNN)",
+   "Question": "3D CNN",
+   "Comparison": "E5 Proposed (3D CNN) - E5 Proposed reliability-aware fusion",
+   "Delta [95% CI]": "-0.001 [-0.004, 0.001]",
+   "Delta Brier [95% CI]": "0.001 [-0.002, 0.003]",
+   "Decision": "-"
+  }
+ ],
+ "conformal_qhat": {
+  "e1_gbm_clinmri": {
+   "standard": 0.5737904493104886,
+   "mondrian": {
+    "0": 0.1731440422418784,
+    "1": 0.9393630305333386
+   }
+  },
+  "e4_early": {
+   "standard": 0.5113538051491537,
+   "mondrian": {
+    "0": 0.30662273239996507,
+    "1": 0.9233952117698183
+   }
+  },
+  "e5_proposed": {
+   "standard": 0.4908800458496775,
+   "mondrian": {
+    "0": 0.18258836799131206,
+    "1": 0.9165694561587235
+   }
+  }
+ },
+ "regression_n": {
+  "dev_test": 478,
+  "external_A": 2477,
+  "external_B": 2353
+ },
+ "stability": {
+  "seed_spearman_median": 0.9173553719008265,
+  "seed_jaccard_median": 1.0,
+  "perturbation_spearman_median": 0.9780219780219779,
+  "shap_spearman_median": 0.9403508771929823,
+  "meets_threshold": true
+ },
+ "test_auroc": {
+  "e1_lr_clin": 0.8944,
+  "e1_gbm_clin": 0.8865,
+  "e1_lr_clinmri": 0.8979,
+  "e1_gbm_clinmri": 0.8868,
+  "e2_clinical": 0.8959,
+  "e3_mri": 0.7512,
+  "e3_cnn": 0.712,
+  "e4_early": 0.8973,
+  "e4_late": 0.8964,
+  "e4_xattn": 0.8905,
+  "e4_early_cnn": 0.8991,
+  "e5_proposed": 0.8943,
+  "e5_proposed_cnn": 0.8886
+ },
+ "n_test_windows": 711,
+ "n_test_participants": 182
+}

@@ -3,3 +3,19 @@ Training the 3D CNN (5 seeds)
   e3_cnn seed 3: val AUROC 0.722, train AUROC 0.687, epoch 26, 201.5s
   e3_cnn seed 0: val AUROC 0.722, train AUROC 0.708, epoch 29, 215.6s
   e3_cnn seed 1: val AUROC 0.717, train AUROC 0.713, epoch 37, 229.1s
+  e3_cnn seed 4: val AUROC 0.708, train AUROC 0.706, epoch 30, 197.5s
+Embedded all scans (394s)
+  e4_early_cnn     seed 0  val AUROC 0.916
+  e4_early_cnn     seed 1  val AUROC 0.920
+  e4_early_cnn     seed 2  val AUROC 0.908
+  e4_early_cnn     seed 3  val AUROC 0.918
+  e4_early_cnn     seed 4  val AUROC 0.920
+  e5_proposed_cnn  seed 0  val AUROC 0.919
+  e5_proposed_cnn  seed 3  val AUROC 0.915
+  e5_proposed_cnn  seed 2  val AUROC 0.918
+  e5_proposed_cnn  seed 1  val AUROC 0.916
+  e5_proposed_cnn  seed 4  val AUROC 0.914
+  Grad-CAM: {'Model': 'Trained 3D CNN', 'Scans': 582, 'CAM mass in hippocampal/temporal region': '0.019', 'CAM mass in ventricular region': '0.058', 'Share of head volume (hippocampal + ventricular)': '0.067', 'CAM mass in hippocampal + ventricular regions': '0.076'}
+  Grad-CAM: {'Model': 'Randomised weights (sanity check)', 'Scans': 582, 'CAM mass in hippocampal/temporal region': '0.024', 'CAM mass in ventricular region': '0.049', 'Share of head volume (hippocampal + ventricular)': '0.067', 'CAM mass in hippocampal + ventricular regions': '0.073'}
+  Grad-CAM: {'Model': 'Trained vs randomised maps, Spearman rho (median)', 'Scans': 200, 'CAM mass in hippocampal/temporal region': '0.485'}
+Done in 435s

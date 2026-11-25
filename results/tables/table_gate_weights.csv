@@ -1,0 +1,13 @@
+Set,MRI quality,Windows,Mean alpha_MRI,SD
+Development test (exploratory),good,395,0.411,0.008
+Development test (exploratory),acceptable,134,0.424,0.003
+Development test (exploratory),poor,53,0.431,0.006
+Development test (exploratory),degraded + flagged poor (stress test),582,0.431,0.007
+External A,good,2139,0.41,0.009
+External A,acceptable,612,0.423,0.003
+External A,poor,227,0.431,0.007
+External A,degraded + flagged poor (stress test),2978,0.431,0.007
+External B,good,818,0.41,0.008
+External B,acceptable,567,0.424,0.003
+External B,poor,701,0.431,0.007
+External B,degraded + flagged poor (stress test),2086,0.431,0.007

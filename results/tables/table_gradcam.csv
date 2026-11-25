@@ -1,0 +1,4 @@
+Model,Scans,CAM mass in hippocampal/temporal region,CAM mass in ventricular region,Share of head volume (hippocampal + ventricular),CAM mass in hippocampal + ventricular regions
+Trained 3D CNN,582,0.019,0.058,0.067,0.076
+Randomised weights (sanity check),582,0.024,0.049,0.067,0.073
+"Trained vs randomised maps, Spearman rho (median)",200,0.485,,,
