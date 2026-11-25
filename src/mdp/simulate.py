@@ -51,7 +51,8 @@ def _viscode(month):
     return "bl" if month == 0 else f"m{month:02d}"
 
 
-def simulate(n_participants=1800, seed=2026):
+def simulate(n_participants=1800, seed=2026, qc_probs=(0.70, 0.20, 0.08, 0.02), mri_acquisition_multiplier=1.0):
+    """qc_probs = P(good, acceptable, poor, failed). Defaults reproduce the development cohort exactly."""
     rng = np.random.default_rng(seed)
     rows, truth = [], []
     for i in range(n_participants):
@@ -130,10 +131,11 @@ def simulate(n_participants=1800, seed=2026):
 
             p_scan = 0.88 if month == 0 else (0.78 if month <= 48 else 0.60)
             p_scan -= 0.10 if dx == "Dementia" else 0.0
+            p_scan *= mri_acquisition_multiplier
             row.update(Hippocampus=np.nan, Entorhinal=np.nan, Ventricles=np.nan,
                        WholeBrain=np.nan, ICV=np.nan, MRI_QC=np.nan, MRI_SCANDATE=None)
             if rng.random() < p_scan:
-                qc = int(rng.choice([1, 2, 3, 0], p=[0.70, 0.20, 0.08, 0.02]))   # 0 = failed QC
+                qc = int(rng.choice([1, 2, 3, 0], p=list(qc_probs)))   # 0 = failed QC
                 scan_date = exam_date + pd.Timedelta(days=int(np.clip(rng.normal(-7, 12), -45, 25)))
                 row.update(MRI_QC=qc, MRI_SCANDATE=scan_date.date().isoformat())
                 if qc > 0:

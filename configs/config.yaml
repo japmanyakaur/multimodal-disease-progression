@@ -7,6 +7,17 @@ data:
   synthetic_csv: data/synthetic/ADNIMERGE_synthetic.csv
   adni_csv: data/adni/ADNIMERGE.csv # never committed to git
   n_participants: 1800
+  external:                         # Stage 2 independent test cohorts (see preregistration_stage2.yaml)
+    external_A:
+      csv: data/synthetic/ADNIMERGE_external_A.csv
+      seed: 3031
+      qc_probs: [0.70, 0.20, 0.08, 0.02]
+      mri_acquisition_multiplier: 1.0
+    external_B:
+      csv: data/synthetic/ADNIMERGE_external_B.csv
+      seed: 4041
+      qc_probs: [0.35, 0.25, 0.32, 0.08]
+      mri_acquisition_multiplier: 0.75
 
 cohort:
   index_diagnosis: MCI
@@ -34,7 +45,25 @@ training:
   attention_heads: 2
   p_drop_mri: 0.30                  # modality-dropout probability (proposed model)
   p_drop_clinical: 0.10
+  consistency_weight: 0.0
   sensitivity_p_drop_mri: [0.15, 0.50]
+  search_seeds: [0, 1]              # Stage 2 equal-budget search (8 configurations per model)
+  grid_baselines:
+    hidden_size: [32, 64]
+    dropout: [0.1, 0.3]
+    learning_rate: [0.001, 0.003]
+  grid_proposed:
+    hidden_size: [32, 64]
+    consistency_weight: [0.0, 0.5]
+    p_drop_clinical: [0.1, 0.3]
+
+imaging_3d:                         # secondary configuration: 3D CNN on rendered volumes
+  epochs: 40
+  patience: 8
+  batch_size: 32
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  degraded_noise_sd: 0.5            # added to normalised volumes in the degraded-MRI stress test
 
 evaluation:                         # pre-specified before the test set is opened
   primary_metric: auroc
