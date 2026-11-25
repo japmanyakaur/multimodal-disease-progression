@@ -5,8 +5,6 @@ using longitudinal clinical/cognitive history and MRI-derived brain measures,
 and evaluates calibration, uncertainty, missing-modality robustness and
 explanation stability.
 
-**New to the project? Read [`docs/PROJECT_EXPLAINED.md`](docs/PROJECT_EXPLAINED.md) first.**
-
 > Research prototype. Not for diagnosis or treatment decisions.
 > Results in `results/` were produced on a **simulated ADNI-format cohort**.
 
