@@ -12,3 +12,6 @@ data/adni/
 data/processed/
 models/
 results/runs/dashboard_audit.jsonl
+
+# Thesis manuscript (personal, unpublished) - kept out of the public repository
+thesis/
