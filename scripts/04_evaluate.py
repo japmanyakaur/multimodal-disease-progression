@@ -37,7 +37,7 @@ ABLATIONS = {"e5_proposed": "Full proposed model", "abl_no_gate": "- reliability
              "abl_no_mask": "- missingness masks", "abl_no_consistency": "- consistency loss",
              "abl_no_moddrop": "- modality dropout (and consistency loss)"}
 SENSITIVITY = {"sens_pdrop_015": 0.15, "e5_proposed": 0.30, "sens_pdrop_050": 0.50}
-REG = {"persistence": "Persistence (index CDR-SB carried forward)", "e1_ridge_reg": "Ridge regression",
+REG = {"persistence": "Persistence (last CDR-SB carried forward)", "e1_ridge_reg": "Ridge regression",
        "e1_gbm_reg": "Gradient boosting", "e2_clinical_reg": "E2 GRU, clinical history only",
        "e5_proposed_reg": "E5 Proposed reliability-aware fusion"}
 CONVENTIONAL = ["e4_early", "e4_late", "e4_xattn"]
@@ -224,9 +224,9 @@ def main():
                         "Delta [95% CI]": M.fmt_ci(*d), "Delta Brier [95% CI]": "-",
                         "Decision": ("supported" if d[1] > 0 else "not supported") if main else
                         ("proposed degrades less" if d[1] > 0 else ("proposed degrades more" if d[2] < 0 else "no difference"))})
-    for comp in ("e1_gbm_clinmri", "e2_clinical"):
-        es = sets["external_A"]
-        hyp.append({"Set": SETS["external_A"], "Role": "supplementary", "Question": "Supplementary",
+    for comp, key in [(c, k) for k in ("external_A", "external_B") for c in ("e1_gbm_clinmri", "e2_clinical")]:
+        es = sets[key]
+        hyp.append({"Set": SETS[key], "Role": "supplementary (not pre-registered)", "Question": "Supplementary",
                     "Comparison": f"Proposed - {LABEL[comp]}",
                     "Delta [95% CI]": M.fmt_ci(*paired("e5_proposed", comp, es, M.auroc)),
                     "Delta Brier [95% CI]": M.fmt_ci(*paired("e5_proposed", comp, es, M.brier)), "Decision": "-"})
@@ -277,11 +277,11 @@ def main():
         row = {"Variant": label,
                "AUROC, external A [95% CI]": M.fmt_ci(*es_a.boot.ci(M.auroc, es_a.y, m.prob("external_A", "natural", es_a.idx))),
                "Delta vs full, external A [95% CI]": "-" if mid == "e5_proposed" else
-               M.fmt_ci(*paired(mid, "e5_proposed", es_a, M.auroc)),
+               M.fmt_ci(*paired(mid, "e5_proposed", es_a, M.auroc), 4),
                "AUROC MRI removed, external A": f"{M.auroc(es_a.y[es_a.idx_mri], m.prob('external_A', 'mri_removed', es_a.idx_mri)):.3f}",
                "AUROC, external B": f"{M.auroc(es_b.y, m.prob('external_B', 'natural', es_b.idx)):.3f}",
                "Delta vs full, external B [95% CI]": "-" if mid == "e5_proposed" else
-               M.fmt_ci(*paired(mid, "e5_proposed", es_b, M.auroc))}
+               M.fmt_ci(*paired(mid, "e5_proposed", es_b, M.auroc), 4)}
         abl.append(row)
     pd.DataFrame(abl).to_csv(TABLES / "table_ablation.csv", index=False)
     sens = [{"MRI drop probability p_MRI": p,
@@ -345,20 +345,26 @@ def main():
     reg_rows = []
     reg_preds = {}
     for mid in REG:
-        if mid == "persistence":
-            reg_preds[mid] = {c: pd.Series(cohorts[c].index_cdrsb.to_numpy(), index=cohorts[c].window_id)
-                              for c in cohorts}
+        if mid == "persistence":                          # last recorded CDR-SB up to the index visit
+            reg_preds[mid] = {c: pd.Series(pd.read_csv(PROCESSED / ("tabular.csv" if c == "dev" else f"tabular_{c}.csv"))
+                                           ["CDR-SB (last)"].to_numpy(), index=cohorts[c].window_id) for c in cohorts}
         else:
             df = pd.read_csv(PREDICTIONS / f"{mid}.csv.gz")
             reg_preds[mid] = {c: g.groupby("window_id").pred.mean() for c, g in df.groupby("cohort")}
+    def usable(cohort, idx, target):                    # windows with a target and a prediction from every model
+        ok = ~np.isnan(target[idx])
+        for m in REG:
+            ok &= ~np.isnan(reg_preds[m][cohort].reindex(idx).to_numpy())
+        return idx[ok]
+
     t_dev = dev.cdrsb_target.to_numpy()
-    cal_r = cal[~np.isnan(t_dev[cal])]
+    cal_r = usable("dev", cal, t_dev)
     for mid, label in REG.items():
         q = M.regression_interval(t_dev[cal_r] - reg_preds[mid]["dev"].reindex(cal_r).to_numpy(), alpha)
         row = {"Model": label, "Interval half-width q (CDR-SB points)": round(q, 2)}
         for key, es in sets.items():
             tgt = es.frame.cdrsb_target.to_numpy()
-            idx = es.idx[~np.isnan(tgt[es.idx])]
+            idx = usable(es.cohort, es.idx, tgt)
             pred = reg_preds[mid][es.cohort].reindex(idx).to_numpy()
             b = M.ClusterBootstrap(es.rid[idx], n_boot, seed=4)
             tag = {"dev_test": "dev", "external_A": "A", "external_B": "B"}[key]
@@ -370,7 +376,7 @@ def main():
     pd.DataFrame(reg_rows).to_csv(TABLES / "table_regression.csv", index=False)
     for key, es in sets.items():
         tgt = es.frame.cdrsb_target.to_numpy()
-        idx = es.idx[~np.isnan(tgt[es.idx])]
+        idx = usable(es.cohort, es.idx, tgt)
         summary.setdefault("regression_n", {})[key] = len(idx)
         if key == "external_A":
             pd.DataFrame({"observed": tgt[idx], **{m: reg_preds[m][es.cohort].reindex(idx).to_numpy() for m in REG}}).to_csv(

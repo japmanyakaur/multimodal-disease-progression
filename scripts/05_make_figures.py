@@ -181,7 +181,8 @@ def fig_ablation():
     col = "Delta vs full, external A [95% CI]"
     for i, (_, r) in enumerate(a.iterrows()):
         p, lo, hi = parse_ci(r[col])
-        c = COLOR["e5_proposed"] if hi < 0 or lo > 0 else INK2
+        excludes_zero = hi < 0 or np.signbit(hi) or lo > 0         # "-0.000" still means a negative bound
+        c = COLOR["e5_proposed"] if excludes_zero else INK2
         ax.plot([lo, hi], [i, i], color=c, lw=1.6, solid_capstyle="round")
         ax.plot(p, i, "o", color=c, ms=7, mec="white", mew=1.5)
     ax.axvline(0, color=AXIS, lw=1)
@@ -302,8 +303,8 @@ def fig_conformal():
         ax.set(ylim=(0.5, 1.02), title=f"Coverage among {title.lower()}")
         ax.grid(axis="x", visible=False)
     axes[0].set_ylabel("Share of cases whose true outcome is in the set")
-    axes[0].legend(fontsize=7.5, loc="lower left")
-    fig.text(0.01, -0.06, "Dashed line: target coverage 0.90. Proposed model.", fontsize=7.5, color=MUTED)
+    axes[0].legend(fontsize=7.5, loc="upper center", bbox_to_anchor=(1.05, -0.12), ncol=2)
+    fig.text(0.01, -0.2, "Dashed line: target coverage 0.90. Proposed model.", fontsize=7.5, color=MUTED)
     save(fig, "fig_conformal")
 
 
@@ -348,14 +349,14 @@ def fig_gradcam():
     for r in range(2):
         vol = d["volumes"][r].astype(float)
         axes[r, 0].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
-        axes[r, 0].set_title(f"{titles[r]}: MRI", fontsize=8.5)
+        axes[r, 0].set_title(f"{titles[r]}:\nMRI", fontsize=8.5)
         axes[r, 1].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
         axes[r, 1].imshow(d["cams"][r].astype(float)[:, sl, :].T, cmap="magma", alpha=0.5, origin="lower", vmin=0, vmax=1)
-        axes[r, 1].set_title(f"Grad-CAM ({d['fraction'][r]:.0%} in hippocampus/ventricles)", fontsize=8.5)
+        axes[r, 1].set_title(f"Grad-CAM\n({d['fraction'][r]:.0%} in hippocampus/ventricles)", fontsize=8.5)
         axes[r, 2].imshow(vol[:, sl, :].T, cmap="gray", origin="lower")
         axes[r, 2].imshow(d["random_cams"][r].astype(float)[:, sl, :].T, cmap="magma", alpha=0.5, origin="lower",
                           vmin=0, vmax=1)
-        axes[r, 2].set_title("Randomised weights (sanity check)", fontsize=8.5)
+        axes[r, 2].set_title("Randomised weights\n(sanity check)", fontsize=8.5)
     for a in axes.flat:
         a.set_xticks([])
         a.set_yticks([])

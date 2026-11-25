@@ -14,6 +14,7 @@ STEPS = [
     ("3/7 Hyper-parameter search and training (E1-E5, ablations, regression)", "scripts/03_train_models.py"),
     ("4/7 3D CNN, CNN fusion models and Grad-CAM", "scripts/03b_train_imaging.py"),
     ("5/7 Evaluate (hypotheses, E6, E7, external cohorts)", "scripts/04_evaluate.py"),
+    ("5b/7 Conformal calibration-split diagnostic", "scripts/04b_conformal_diagnostic.py"),
     ("6/7 Make figures", "scripts/05_make_figures.py"),
     ("7/7 Dataset card and model card", "scripts/06_make_cards.py"),
 ]
