@@ -94,6 +94,50 @@ def conformal_sets(p_cal, y_cal, p_test, alpha):
     return has_0, has_1, q
 
 
+def mondrian_sets(p_cal, y_cal, p_test, alpha):
+    """Class-conditional (Mondrian) conformal sets: a separate threshold for each true class,
+    so that coverage holds within converters and within non-converters, not just on average."""
+    p_cal, y_cal, p_test = np.asarray(p_cal), np.asarray(y_cal), np.asarray(p_test)
+    qs = {}
+    for k in (0, 1):
+        s = 1 - (p_cal[y_cal == k] if k == 1 else 1 - p_cal[y_cal == 0])
+        n = len(s)
+        qs[k] = float(np.quantile(s, min(np.ceil((n + 1) * (1 - alpha)) / n, 1.0), method="higher"))
+    return p_test <= qs[0], (1 - p_test) <= qs[1], qs
+
+
+def regression_interval(resid_cal, alpha):
+    """Split conformal half-width q (Eq. 7.4) from absolute calibration residuals."""
+    r = np.abs(np.asarray(resid_cal))
+    n = len(r)
+    return float(np.quantile(r, min(np.ceil((n + 1) * (1 - alpha)) / n, 1.0), method="higher"))
+
+
+def mae(y, p):
+    return float(np.mean(np.abs(np.asarray(p) - np.asarray(y))))
+
+
+def rmse(y, p):
+    return float(np.sqrt(np.mean((np.asarray(p) - np.asarray(y)) ** 2)))
+
+
+def r2(y, p):
+    y, p = np.asarray(y), np.asarray(p)
+    return float(1 - np.sum((y - p) ** 2) / np.sum((y - y.mean()) ** 2))
+
+
+def c_index(time, event, risk):
+    """Harrell's concordance index: higher risk should mean earlier dementia (ties in risk count 1/2)."""
+    t, e, r = np.asarray(time, float), np.asarray(event, int), np.asarray(risk, float)
+    num = den = 0.0
+    for s in range(0, len(t), 1000):
+        ti, ei, ri = t[s:s + 1000, None], e[s:s + 1000, None], r[s:s + 1000, None]
+        comparable = (ti < t[None, :]) & (ei == 1)
+        num += np.sum(comparable * ((ri > r[None, :]) + 0.5 * (ri == r[None, :])))
+        den += np.sum(comparable)
+    return float(num / den) if den else np.nan
+
+
 class ClusterBootstrap:
     """Resample participants (not windows) with replacement; all windows of a participant move together."""
 
