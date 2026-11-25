@@ -1,0 +1,10 @@
+Stage,Count,Participants
+Visits in data release,10105,1800.0
+After removing records without participant ID or date,10105,1800.0
+After removing duplicate visits,10105,1800.0
+MCI visits (candidate index visits),5229,
+Excluded: dementia diagnosed before the index visit,-127,
+Excluded: no cognitive score at the index visit,0,
+Excluded: outcome unknown at 24 months (insufficient follow-up),-1730,
+Excluded: next visit inside the predictor cut-off,0,
+Analysis cohort (index windows),3372,910.0

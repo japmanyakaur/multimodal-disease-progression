@@ -1,0 +1,27 @@
+{
+ "e2_clinical": {
+  "dropout": 0.1,
+  "hidden_size": 64,
+  "learning_rate": 0.003
+ },
+ "e3_mri": {
+  "dropout": 0.1,
+  "hidden_size": 32,
+  "learning_rate": 0.003
+ },
+ "e4_early": {
+  "dropout": 0.3,
+  "hidden_size": 64,
+  "learning_rate": 0.003
+ },
+ "e4_xattn": {
+  "dropout": 0.3,
+  "hidden_size": 32,
+  "learning_rate": 0.003
+ },
+ "e5_proposed": {
+  "consistency_weight": 0.5,
+  "hidden_size": 64,
+  "p_drop_clinical": 0.3
+ }
+}

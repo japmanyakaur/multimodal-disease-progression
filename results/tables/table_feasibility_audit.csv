@@ -1,0 +1,20 @@
+Audit item,Value
+Participants,"1,800"
+Visits,"10,105"
+"Visits per participant, median [IQR]","5.0 [4.0, 8.0]"
+"Follow-up years, median [IQR]","3.0 [2.0, 6.0]"
+Baseline group LMCI,517
+Baseline group EMCI,498
+Baseline group CN,401
+Baseline group AD,269
+Baseline group SMC,115
+MMSE missing (% of visits),2.6%
+CDRSB missing (% of visits),1.7%
+ADAS13 missing (% of visits),5.2%
+FAQ missing (% of visits),4.2%
+APOE4 missing (% of participants),4.0%
+Visits with a usable MRI,74.1%
+MRI scans rated good,69.6%
+MRI scans rated acceptable,20.5%
+MRI scans rated poor,7.9%
+MRI scans rated failed QC,2.0%
