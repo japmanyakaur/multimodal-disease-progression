@@ -1,0 +1,68 @@
+# STAGE 2 PRE-REGISTRATION
+# Written after the Stage 1 locked evaluation and committed to git BEFORE external cohorts A and B
+# were generated and BEFORE any Stage 2 model was trained. The git commit timestamp is the record.
+# Any departure from this plan is reported as a deviation in the thesis.
+
+status: frozen
+written_after: "Stage 1 locked evaluation (H1, H2 and RQ1 not supported on the development test set)"
+
+why_stage_2: >
+  Stage 1 opened the development test set once. Improving the models and re-testing on that same set
+  would overfit it. Stage 2 therefore (a) selects every change on the validation split only and
+  (b) tests the frozen models on two NEW independent cohorts that did not exist during development.
+
+modelling_changes:            # all selected on the VALIDATION split only
+  hyperparameter_search:
+    rule: "8 configurations per neural model; choose the one with the highest mean validation AUROC over seeds 0 and 1; then train seeds 0-4"
+    grid_baselines:           # E2 GRU, E3 MRI-only, E4 early fusion, E4 cross-attention fusion
+      hidden_size: [32, 64]
+      dropout: [0.1, 0.3]
+      learning_rate: [0.001, 0.003]
+    grid_proposed:            # E5; its ablations reuse the selected configuration
+      hidden_size: [32, 64]
+      consistency_weight_lambda: [0.0, 0.5]    # thesis Eq. 6.6
+      p_drop_clinical: [0.1, 0.3]
+      fixed: {dropout: 0.2, learning_rate: 0.001, p_drop_mri: 0.3}
+  classical_baselines: "unchanged from Stage 1 (grouped 5-fold CV on the training split)"
+  conformal: "add class-conditional (Mondrian) conformal sets; report alongside standard sets"
+  imaging_3d:                 # secondary configuration, thesis Sections 5.5, 5.6, 6.3, 7.7
+    input: "32^3 T1-like volume rendered from each scan's regional measures with quality-dependent artefacts"
+    encoder: "compact 3D ResNet, trained MRI-only per seed, then frozen"
+    models: [E3-CNN MRI only, E4 early fusion with CNN, E5 proposed with CNN]
+    explanation: "Grad-CAM with a randomised-weights sanity check and an anatomical-overlap check"
+    tuning: "none (fixed configuration; compute constraint)"
+  secondary_regression:       # thesis Sections 3.5, 7.3, 8.6
+    target: "CDR-SB at 24 +/- 3 months after the index visit"
+    models: [ridge regression, gradient boosting, E2 GRU, E5 proposed]
+    metrics: [MAE, RMSE, R2]
+    uncertainty: "split conformal intervals, alpha = 0.10, fitted on the calibration split"
+  time_to_event: "Harrell C-index of each classifier's risk score for time to first dementia diagnosis (supplementary)"
+
+evaluation_sets:
+  development_test: "Stage 1 locked test split. Already opened, so Stage 2 results there are EXPLORATORY."
+  external_A:
+    description: "new independent simulated cohort, same generator settings as development"
+    seed: 3031
+    n_participants: 1800
+    role: CONFIRMATORY (primary)
+  external_B:
+    description: "new independent simulated cohort from a degraded-imaging site (thesis Section 7.4)"
+    seed: 4041
+    n_participants: 1800
+    mri_quality_probabilities: {good: 0.35, acceptable: 0.25, poor: 0.32, failed: 0.08}   # development: 0.70/0.20/0.08/0.02
+    mri_acquisition_multiplier: 0.75
+    role: CONFIRMATORY (secondary)
+  rules:
+    - "every eligible index window of an external cohort is a test window"
+    - "no retraining, re-tuning or recalibration on external data: scalers, temperature, threshold and conformal quantiles come from the development data"
+    - "each external cohort is evaluated once, by the Stage 2 evaluation script"
+
+hypotheses:                   # decision rules unchanged from thesis Chapter 10
+  primary_metric: AUROC
+  bootstrap: "2000 participant-level replicates, paired between models, 95% percentile intervals"
+  H1: "Proposed vs strongest conventional fusion (chosen on validation AUROC) on external A: supported if the lower CI bound of Delta AUROC > 0, the point estimate >= 0.02 and Delta Brier <= +0.01"
+  RQ1: "Strongest fusion vs strongest single-modality model (both chosen on validation) on external A: improvement if lower CI bound > 0 and point estimate >= 0.02"
+  H2: "On external-A windows with MRI, AUROC loss when MRI is removed is smaller for the proposed model than for E4 cross-attention fusion: supported if the 95% CI of the difference excludes 0"
+  H2_site: "On external B (natural availability), Delta AUROC proposed vs strongest conventional fusion and the H2 degradation contrast, same rules (secondary)"
+  calibration: "ECE and Brier with CIs on A and B; conformal coverage vs nominal 0.90 for standard and Mondrian sets"
+  reporting: "all models reported, including any that beat the proposed model; negative results reported as such"
