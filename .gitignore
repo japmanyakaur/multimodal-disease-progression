@@ -12,3 +12,4 @@ data/adni/
 data/processed/
 models/*
 !models/e5_proposed/
+results/runs/dashboard_audit.jsonl
