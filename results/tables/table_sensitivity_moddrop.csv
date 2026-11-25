@@ -1,0 +1,4 @@
+MRI drop probability p_MRI,AUROC (full test),AUROC (MRI removed),Validation AUROC
+0.15,0.888,0.882,0.909
+0.3,0.888,0.884,0.91
+0.5,0.893,0.888,0.911

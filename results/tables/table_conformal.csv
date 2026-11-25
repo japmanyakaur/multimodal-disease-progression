@@ -1,0 +1,4 @@
+Model,Target coverage,q_hat,Coverage (all),Coverage (with MRI),Coverage (MRI missing),Coverage (converters),Mean set size,Singleton sets,Both-class sets (uncertain),Empty sets
+E1 Gradient boosting (clinical + MRI),0.9,0.574,0.872,0.869,0.884,0.667,1.048,95.2%,4.8%,0.0%
+E4 Early fusion,0.9,0.537,0.869,0.866,0.884,0.644,1.031,96.9%,3.1%,0.0%
+E5 Proposed reliability-aware fusion,0.9,0.522,0.848,0.844,0.868,0.652,1.018,98.2%,1.8%,0.0%

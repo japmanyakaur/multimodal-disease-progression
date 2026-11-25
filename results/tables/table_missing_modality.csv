@@ -1,0 +1,7 @@
+Model,All modalities present,Clinical only (MRI masked),MRI only (history masked),"Degraded MRI, flagged by QC","Degraded MRI, not flagged",Random MRI removal 25%,Random MRI removal 50%,Naturally missing MRI (separate windows)
+"E2 GRU, clinical history only",0.888,0.888,,0.888,0.888,0.888,0.888,0.929
+E1 Gradient boosting (clinical + MRI),0.882,0.878,,0.888,0.888,0.880,0.878,0.917
+E4 Early fusion,0.890,0.884,0.730,0.891,0.891,0.888,0.886,0.927
+E4 Late fusion,0.888,0.888,0.748,0.879,0.879,0.882,0.878,0.929
+E4 Cross-attention fusion,0.881,0.872,0.730,0.879,0.879,0.880,0.877,0.922
+E5 Proposed reliability-aware fusion,0.884,0.884,0.706,0.884,0.884,0.881,0.880,0.920

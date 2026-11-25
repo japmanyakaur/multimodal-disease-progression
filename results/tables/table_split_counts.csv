@@ -1,0 +1,5 @@
+split,participants,windows,converters
+calibration,91,400,68
+test,182,711,135
+train,542,1940,387
+validation,95,321,78
