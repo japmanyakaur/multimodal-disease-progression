@@ -366,11 +366,77 @@ def fig_gradcam():
     save(fig, "fig_gradcam")
 
 
+def fig_mri_examples():
+    from mdp.imaging import render
+    cases = [("Healthy brain\n(good quality)", 8000, 4100, 18000, 1.10e6, 1.5e6, 1),
+             ("Atrophied brain\n(good quality)", 5200, 2700, 60000, 0.98e6, 1.5e6, 1),
+             ("Atrophied brain\n(poor quality)", 5200, 2700, 60000, 0.98e6, 1.5e6, 3)]
+    fig, axes = plt.subplots(3, 3, figsize=(6.6, 6.6))
+    for i, (name, *meas, qc) in enumerate(cases):
+        v = render(*meas, qc, seed=1).astype(float)
+        for j, sl in enumerate((v[:, :, 10].T, v[:, 15, :].T, v[16, :, :].T)):
+            ax = axes[i, j]
+            ax.imshow(sl, cmap="gray", origin="lower", vmin=0, vmax=1.0)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.grid(False)
+            for sp in ax.spines.values():
+                sp.set_visible(False)
+        axes[i, 0].set_ylabel(name, fontsize=9, color=INK)
+    for j, t in enumerate(("Axial (hippocampal level)", "Coronal", "Sagittal")):
+        axes[0, j].set_title(t, fontsize=9, loc="center")
+    fig.text(0.01, 0.0, "Simulated 32 x 32 x 32 volumes rendered from regional measures. Dark = fluid (CSF); "
+             "note the larger ventricles and temporal horns in atrophy.", fontsize=7.5, color=MUTED)
+    save(fig, "fig_mri_examples")
+
+
+def fig_evaluation_design():
+    from matplotlib.patches import FancyBboxPatch
+    flow = pd.read_csv(TABLES / "table_cohort_flow.csv")
+    split = pd.read_csv(TABLES / "table_split_counts.csv").set_index("split")
+    ext = pd.read_csv(TABLES / "table_external_cohorts.csv").set_index("Cohort")
+    fin = flow.iloc[-1]
+    s1 = [("Simulated\ndevelopment cohort", f"{int(flow.iloc[0].Participants):,} participants\n"
+                                              f"{int(fin.Count):,} index windows"),
+          ("Participant-level\nsplit", f"train {split.loc['train', 'participants']}, val "
+                                         f"{split.loc['validation', 'participants']}\ncal "
+                                         f"{split.loc['calibration', 'participants']}, test {split.loc['test', 'participants']}"),
+          ("Train E1-E5\nand ablations", "5 seeds each\nfixed configuration"),
+          ("Locked test\nevaluation", "opened once\n(Stage 1 results)")]
+    s2 = [("Pre-registration", "rules committed to git\nbefore new data existed"),
+          ("Equal-budget\ntuning", "8 configurations per\nmodel, validation only"),
+          ("Two new\ncohorts", f"A: same population, {ext.loc['external_A', 'Index windows']:,}\n"
+                                f"B: poor imaging, {ext.loc['external_B', 'Index windows']:,}"),
+          ("Confirmatory\nevaluation", "H1, H2, RQ1 with\nfixed decision rules")]
+    fig, ax = plt.subplots(figsize=(9.2, 4.4))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 4.9)
+    ax.axis("off")
+    styles = {1: ("#f0efec", AXIS), 2: ("#e3eefc", COLOR["e5_proposed"])}
+    xs = [0.3, 2.8, 5.3, 7.8]
+    w, h = 2.0, 1.45
+    for y, boxes, stage in ((2.95, s1, 1), (0.25, s2, 2)):
+        fc, ec = styles[stage]
+        ax.text(0.3, y + h + 0.18, f"Stage {stage}" + (": locked evaluation on the development data" if stage == 1 else
+                ": pre-registered evaluation on independent cohorts"), fontsize=9, fontweight="bold", color=INK)
+        for k, (x, (title, body)) in enumerate(zip(xs, boxes)):
+            ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.02,rounding_size=0.08", fc=fc, ec=ec, lw=1.2))
+            ax.text(x + w / 2, y + h * 0.70, title, ha="center", va="center", fontsize=8, fontweight="bold", color=INK,
+                    linespacing=1.15)
+            ax.text(x + w / 2, y + h * 0.27, body, ha="center", va="center", fontsize=7, color=INK2, linespacing=1.3)
+            if k < 3:
+                ax.annotate("", xy=(xs[k + 1] - 0.04, y + h / 2), xytext=(x + w + 0.04, y + h / 2),
+                            arrowprops=dict(arrowstyle="-|>", color=MUTED, lw=1.2))
+    ax.text(5.0, 2.32, "Weaknesses found in Stage 1 were addressed with changes selected on validation data only",
+            fontsize=7.8, color=COLOR["e5_proposed"], ha="center", style="italic")
+    save(fig, "fig_evaluation_design")
+
+
 def main():
     FIGURES.mkdir(parents=True, exist_ok=True)
     for f in (fig_cohort_flow, fig_auroc_by_cohort, fig_roc_pr, fig_reliability, fig_missing_modality, fig_ablation,
               fig_importance, fig_temporal, fig_gate, fig_stability, fig_subgroups, fig_conformal, fig_regression,
-              fig_gradcam):
+              fig_gradcam, fig_mri_examples, fig_evaluation_design):
         f()
 
 
