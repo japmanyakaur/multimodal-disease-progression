@@ -92,6 +92,14 @@ def build_cohort(df, cfg):
                 counts["insufficient_followup"] += 1
                 continue
 
+            # time to first dementia diagnosis (any time after t0), censored at the last known visit
+            dem = np.where(fut_dx == "Dementia")[0]
+            tte, tte_event = (float(months[dem[0]]), 1) if len(dem) else (float(months[known].max()), 0)
+            # secondary regression target: CDR-SB at the visit closest to t0 + h within the tolerance
+            cdr = g.CDRSB.to_numpy()[j + 1:]
+            ok_cdr = (np.abs(months - h) <= tol) & ~np.isnan(cdr)
+            cdrsb_h = float(cdr[ok_cdr][np.argmin(np.abs(months[ok_cdr] - h))]) if ok_cdr.any() else np.nan
+
             index_date = pd.Timestamp(dates[j])
             cutoff = index_date + pd.Timedelta(days=cutoff_days)
             if len(months) and pd.Timestamp(dates[j + 1]) <= cutoff:
@@ -113,7 +121,8 @@ def build_cohort(df, cfg):
             rows.append(dict(
                 RID=int(rid), index_row=int(idx[j]), index_viscode=g.VISCODE.iloc[j],
                 index_date=index_date, cutoff_date=cutoff, label=label,
-                months_to_event=months_to_event, mri_row=mri_row, mri_match=match,
+                months_to_event=months_to_event, tte_months=tte, tte_event=tte_event, cdrsb_target=cdrsb_h,
+                index_cdrsb=float(g.CDRSB.iloc[j]), mri_row=mri_row, mri_match=match,
                 hist_rows=";".join(map(str, hist)),
                 first_outcome_date=pd.Timestamp(dates[j + 1]),
             ))
@@ -129,6 +138,43 @@ def build_cohort(df, cfg):
         ("Analysis cohort (index windows)", len(cohort), cohort.RID.nunique()),
     ]
     return cohort, flow, linkage
+
+
+# --------------------------------------------------------------------------- feasibility audit (Section 4.2)
+def feasibility_audit(df, cfg):
+    """Counts, missingness and outcome availability recorded before modelling."""
+    per = df.groupby("RID")
+    follow = (per.EXAMDATE.max() - per.EXAMDATE.min()).dt.days / 365.25
+    nvis = per.size()
+    scans = df[df.MRI_QC.notna()]
+
+    def med(x):
+        return f"{np.median(x):.1f} [{np.percentile(x, 25):.1f}, {np.percentile(x, 75):.1f}]"
+
+    rows = [("Participants", f"{df.RID.nunique():,}"), ("Visits", f"{len(df):,}"),
+            ("Visits per participant, median [IQR]", med(nvis)),
+            ("Follow-up years, median [IQR]", med(follow))]
+    for grp, n in per.DX_bl.first().value_counts().items():
+        rows.append((f"Baseline group {grp}", f"{n:,}"))
+    for col in SCORES:
+        rows.append((f"{col} missing (% of visits)", f"{df[col].isna().mean():.1%}"))
+    rows.append(("APOE4 missing (% of participants)", f"{per.APOE4.first().isna().mean():.1%}"))
+    rows.append(("Visits with a usable MRI", f"{df.mri_ok.mean():.1%}"))
+    for q, name in ((1, "good"), (2, "acceptable"), (3, "poor"), (0, "failed QC")):
+        rows.append((f"MRI scans rated {name}", f"{(scans.MRI_QC == q).mean():.1%}"))
+    return pd.DataFrame(rows, columns=["Audit item", "Value"])
+
+
+def horizon_audit(df, cfg, horizons=(12, 24, 36)):
+    """Outcome availability at candidate forecast horizons."""
+    rows = []
+    for h in horizons:
+        c2 = {**cfg, "cohort": {**cfg["cohort"], "horizon_months": h}}
+        coh, _, _ = build_cohort(df, c2)
+        rows.append({"Horizon (months)": h, "Index windows": len(coh), "Participants": coh.RID.nunique(),
+                     "Converters": int(coh.label.sum()), "Conversion rate": f"{coh.label.mean():.1%}",
+                     "Windows with MRI": f"{(coh.mri_row >= 0).mean():.1%}"})
+    return pd.DataFrame(rows)
 
 
 # --------------------------------------------------------------------------- splits

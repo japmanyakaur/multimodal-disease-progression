@@ -1,0 +1,148 @@
+{
+ "n_test_windows": 711,
+ "n_test_participants": 182,
+ "n_test_complete": 582,
+ "n_test_no_mri": 129,
+ "test_events": 135,
+ "validation_auroc": {
+  "e1_lr_clin": 0.897,
+  "e1_gbm_clin": 0.8854,
+  "e1_lr_clinmri": 0.9047,
+  "e1_gbm_clinmri": 0.8694,
+  "e2_clinical": 0.9103,
+  "e4_early": 0.9162,
+  "e4_xattn": 0.907,
+  "e5_proposed": 0.9098,
+  "abl_no_gate": 0.9117,
+  "abl_no_xattn": 0.9146,
+  "abl_no_time": 0.9077,
+  "abl_no_mask": 0.9125,
+  "abl_no_moddrop": 0.9066,
+  "sens_pdrop_015": 0.9094,
+  "sens_pdrop_050": 0.911,
+  "e4_late": 0.9021
+ },
+ "strongest_conventional_fusion": "e4_early",
+ "strongest_single_modality": "e2_clinical",
+ "strongest_fusion": "e4_early",
+ "test_auroc": {
+  "e1_lr_clin": 0.8944,
+  "e1_gbm_clin": 0.8865,
+  "e1_lr_clinmri": 0.8979,
+  "e1_gbm_clinmri": 0.8868,
+  "e2_clinical": 0.8952,
+  "e3_mri": 0.7479,
+  "e4_early": 0.8956,
+  "e4_late": 0.8934,
+  "e4_xattn": 0.8892,
+  "e5_proposed": 0.888
+ },
+ "hypotheses": [
+  {
+   "Question": "H1 / RQ1b",
+   "Comparison": "Proposed - E4 Early fusion",
+   "Population": "full test set",
+   "Delta AUROC [95% CI]": "-0.008 [-0.019, 0.003]",
+   "Delta Brier [95% CI]": "0.007 [-0.001, 0.014]",
+   "Decision": "not supported"
+  },
+  {
+   "Question": "RQ1",
+   "Comparison": "E4 Early fusion - E2 GRU, clinical history only",
+   "Population": "full test set",
+   "Delta AUROC [95% CI]": "0.000 [-0.006, 0.007]",
+   "Delta Brier [95% CI]": "0.000 [-0.002, 0.003]",
+   "Decision": "no meaningful improvement"
+  },
+  {
+   "Question": "Supplementary",
+   "Comparison": "Proposed - E1 Gradient boosting (clinical + MRI)",
+   "Population": "full test set",
+   "Delta AUROC [95% CI]": "0.001 [-0.016, 0.019]",
+   "Delta Brier [95% CI]": "0.003 [-0.007, 0.012]",
+   "Decision": "-"
+  },
+  {
+   "Question": "Supplementary",
+   "Comparison": "Proposed - E2 GRU, clinical history only",
+   "Population": "full test set",
+   "Delta AUROC [95% CI]": "-0.007 [-0.019, 0.004]",
+   "Delta Brier [95% CI]": "0.007 [-0.001, 0.015]",
+   "Decision": "-"
+  },
+  {
+   "Question": "H2",
+   "Comparison": "AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed",
+   "Population": "test windows with MRI",
+   "Delta AUROC [95% CI]": "0.009 [-0.004, 0.024]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "not supported"
+  },
+  {
+   "Question": "H2 (supplementary)",
+   "Comparison": "AUROC loss when MRI removed: E4 Early fusion minus Proposed",
+   "Population": "test windows with MRI",
+   "Delta AUROC [95% CI]": "0.005 [-0.004, 0.015]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "-"
+  },
+  {
+   "Question": "H2 (supplementary)",
+   "Comparison": "AUROC loss when MRI removed: E4 Late fusion minus Proposed",
+   "Population": "test windows with MRI",
+   "Delta AUROC [95% CI]": "-0.001 [-0.018, 0.017]",
+   "Delta Brier [95% CI]": "-",
+   "Decision": "-"
+  }
+ ],
+ "stress_populations": {
+  "common_subset_windows": 582,
+  "naturally_missing_windows": 129,
+  "naturally_missing_events": 21
+ },
+ "stability": {
+  "seed_spearman_median": 0.901098901098901,
+  "seed_jaccard_median": 1.0,
+  "perturbation_spearman_median": 0.9817629179331308,
+  "shap_spearman_median": 0.9385964912280702,
+  "meets_threshold": true
+ },
+ "temperatures": {
+  "e1_lr_clin": 0.901,
+  "e1_gbm_clin": 1.234,
+  "e1_lr_clinmri": 0.888,
+  "e1_gbm_clinmri": 1.692,
+  "e2_clinical": 1.002,
+  "e3_mri": 0.784,
+  "e4_early": 0.95,
+  "e4_xattn": 1.054,
+  "e5_proposed": 1.181,
+  "abl_no_gate": 1.181,
+  "abl_no_xattn": 0.909,
+  "abl_no_time": 1.168,
+  "abl_no_mask": 1.232,
+  "abl_no_moddrop": 1.15,
+  "sens_pdrop_015": 1.143,
+  "sens_pdrop_050": 1.182,
+  "e4_late": 0.729
+ },
+ "thresholds": {
+  "e1_lr_clin": 0.154,
+  "e1_gbm_clin": 0.132,
+  "e1_lr_clinmri": 0.144,
+  "e1_gbm_clinmri": 0.154,
+  "e2_clinical": 0.249,
+  "e3_mri": 0.166,
+  "e4_early": 0.129,
+  "e4_xattn": 0.084,
+  "e5_proposed": 0.176,
+  "abl_no_gate": 0.18,
+  "abl_no_xattn": 0.166,
+  "abl_no_time": 0.205,
+  "abl_no_mask": 0.158,
+  "abl_no_moddrop": 0.155,
+  "sens_pdrop_015": 0.158,
+  "sens_pdrop_050": 0.118,
+  "e4_late": 0.205
+ }
+}

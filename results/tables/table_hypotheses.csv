@@ -1,8 +1,24 @@
-Question,Comparison,Population,Delta AUROC [95% CI],Delta Brier [95% CI],Decision
-H1 / RQ1b,Proposed - E4 Early fusion,full test set,"-0.008 [-0.019, 0.003]","0.007 [-0.001, 0.014]",not supported
-RQ1,"E4 Early fusion - E2 GRU, clinical history only",full test set,"0.000 [-0.006, 0.007]","0.000 [-0.002, 0.003]",no meaningful improvement
-Supplementary,Proposed - E1 Gradient boosting (clinical + MRI),full test set,"0.001 [-0.016, 0.019]","0.003 [-0.007, 0.012]",-
-Supplementary,"Proposed - E2 GRU, clinical history only",full test set,"-0.007 [-0.019, 0.004]","0.007 [-0.001, 0.015]",-
-H2,AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed,test windows with MRI,"0.009 [-0.004, 0.024]",-,not supported
-H2 (supplementary),AUROC loss when MRI removed: E4 Early fusion minus Proposed,test windows with MRI,"0.005 [-0.004, 0.015]",-,-
-H2 (supplementary),AUROC loss when MRI removed: E4 Late fusion minus Proposed,test windows with MRI,"-0.001 [-0.018, 0.017]",-,-
+Set,Role,Question,Comparison,Delta [95% CI],Delta Brier [95% CI],Decision
+External A,confirmatory (primary),H1,Proposed - E4 Early fusion,"0.001 [-0.006, 0.008]","-0.007 [-0.012, -0.002]",not supported
+External A,confirmatory (primary),RQ1,"E4 Early fusion - E2 GRU, clinical history only","-0.003 [-0.008, 0.002]","0.007 [0.004, 0.010]",no meaningful improvement
+External A,confirmatory (primary),H2,AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed,"-0.002 [-0.007, 0.002]",-,not supported
+External A,supplementary,H2 (other comparator),AUROC loss when MRI removed: E4 Early fusion minus Proposed,"-0.004 [-0.009, 0.001]",-,no difference
+External A,supplementary,H2 (other comparator),AUROC loss when MRI removed: E4 Late fusion minus Proposed,"-0.019 [-0.027, -0.012]",-,proposed degrades more
+External B,confirmatory (secondary),H1 (replication),Proposed - E4 Early fusion,"0.007 [0.001, 0.013]","-0.007 [-0.012, -0.002]",not supported
+External B,confirmatory (secondary),RQ1,"E4 Early fusion - E2 GRU, clinical history only","-0.007 [-0.012, -0.002]","0.007 [0.004, 0.010]",no meaningful improvement
+External B,confirmatory (secondary),H2,AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed,"-0.003 [-0.007, 0.001]",-,not supported
+External B,supplementary,H2 (other comparator),AUROC loss when MRI removed: E4 Early fusion minus Proposed,"-0.006 [-0.010, -0.001]",-,proposed degrades more
+External B,supplementary,H2 (other comparator),AUROC loss when MRI removed: E4 Late fusion minus Proposed,"-0.008 [-0.017, 0.000]",-,no difference
+Development test (exploratory),exploratory,H1 (replication),Proposed - E4 Early fusion,"-0.003 [-0.017, 0.011]","0.003 [-0.008, 0.014]",not supported
+Development test (exploratory),exploratory,RQ1,"E4 Early fusion - E2 GRU, clinical history only","0.001 [-0.009, 0.011]","0.003 [-0.002, 0.008]",no meaningful improvement
+Development test (exploratory),exploratory,H2,AUROC loss when MRI removed: E4 Cross-attention fusion minus Proposed,"0.008 [-0.001, 0.018]",-,not supported
+Development test (exploratory),supplementary,H2 (other comparator),AUROC loss when MRI removed: E4 Early fusion minus Proposed,"0.003 [-0.006, 0.012]",-,no difference
+Development test (exploratory),supplementary,H2 (other comparator),AUROC loss when MRI removed: E4 Late fusion minus Proposed,"-0.001 [-0.019, 0.018]",-,no difference
+External A,supplementary (not pre-registered),Supplementary,Proposed - E1 Gradient boosting (clinical + MRI),"0.023 [0.014, 0.031]","-0.008 [-0.012, -0.003]",-
+External A,supplementary (not pre-registered),Supplementary,"Proposed - E2 GRU, clinical history only","-0.002 [-0.007, 0.003]","0.000 [-0.002, 0.003]",-
+External B,supplementary (not pre-registered),Supplementary,Proposed - E1 Gradient boosting (clinical + MRI),"0.026 [0.019, 0.034]","-0.013 [-0.017, -0.009]",-
+External B,supplementary (not pre-registered),Supplementary,"Proposed - E2 GRU, clinical history only","-0.000 [-0.004, 0.004]","0.000 [-0.002, 0.003]",-
+External A,secondary (3D CNN),3D CNN,E5 Proposed (3D CNN) - E4 Early fusion (3D CNN),"-0.003 [-0.008, 0.002]","-0.005 [-0.008, -0.002]",-
+External B,secondary (3D CNN),3D CNN,E5 Proposed (3D CNN) - E4 Early fusion (3D CNN),"0.000 [-0.004, 0.004]","-0.004 [-0.007, -0.001]",-
+External A,secondary (3D CNN),3D CNN,E5 Proposed (3D CNN) - E5 Proposed reliability-aware fusion,"-0.002 [-0.005, 0.002]","0.000 [-0.002, 0.002]",-
+External B,secondary (3D CNN),3D CNN,E5 Proposed (3D CNN) - E5 Proposed reliability-aware fusion,"-0.001 [-0.004, 0.001]","0.001 [-0.002, 0.003]",-

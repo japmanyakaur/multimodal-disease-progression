@@ -1,0 +1,5 @@
+Model,Development test (exploratory),External A,External B
+E1 Gradient boosting (clinical + MRI),"0.840 [0.802, 0.877]","0.828 [0.811, 0.847]","0.839 [0.820, 0.855]"
+"E2 GRU, clinical history only","0.847 [0.805, 0.886]","0.848 [0.833, 0.868]","0.863 [0.844, 0.877]"
+E4 Early fusion,"0.845 [0.803, 0.885]","0.845 [0.831, 0.866]","0.856 [0.837, 0.873]"
+E5 Proposed reliability-aware fusion,"0.848 [0.810, 0.887]","0.849 [0.833, 0.867]","0.863 [0.843, 0.878]"

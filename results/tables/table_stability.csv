@@ -1,4 +1,4 @@
 Model / explainer,Perturbation,"Spearman rho, median [IQR]","Top-3 overlap J_k, median [IQR]",Comparisons
-Proposed / Integrated Gradients,5 training seeds (10 pairs),"0.901 [0.819, 0.956]","1.000 [0.500, 1.000]",7110
-Proposed / Integrated Gradients,input noise 0.1 SD (x5),"0.982 [0.962, 0.994]","1.000 [1.000, 1.000]",3555
-Gradient boosting (clinical + MRI) / SHAP,input noise 0.1 SD (x5),"0.939 [0.885, 0.972]","1.000 [0.500, 1.000]",3555
+Proposed / Integrated Gradients,5 training seeds (10 pairs),"0.917 [0.846, 0.962]","1.000 [0.500, 1.000]",35580
+Proposed / Integrated Gradients,input noise 0.1 SD (x5),"0.978 [0.962, 0.994]","1.000 [1.000, 1.000]",17790
+Gradient boosting (clinical + MRI) / SHAP,input noise 0.1 SD (x5),"0.940 [0.888, 0.972]","1.000 [0.500, 1.000]",17790

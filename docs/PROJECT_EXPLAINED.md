@@ -142,7 +142,49 @@ labelled "research prototype – not for diagnosis".
 
 ---
 
-## 4. Key terms in one line each
+## 4. Stage 2: making the results more trustworthy
+
+After the first (Stage 1) evaluation we wanted to improve the models **without
+cheating**. Re-testing on the same test set after changing things would
+overfit it, so Stage 2 works like this:
+
+1. **Pre-registration** (`configs/preregistration_stage2.yaml`): the hypotheses,
+   metrics and pass/fail rules were written down and pushed to GitHub *before*
+   any new data existed. The commit time proves we did not change the rules
+   after seeing results.
+2. **Fair tuning:** every neural model got the same budget, 8 settings each,
+   scored on the validation split only.
+3. **New ideas from the thesis:** consistency loss (Eq. 6.6), per-class
+   (Mondrian) conformal sets, a 3D CNN on brain images with Grad-CAM heatmaps,
+   a second task (predict the CDR-SB score at 24 months) and a time-to-dementia
+   C-index.
+4. **Two brand-new test cohorts**, never seen by any model:
+   *A* = same kind of patients; *B* = a "messy hospital" with many poor or missing
+   MRIs.
+
+## 5. Final results in plain words (simulated data)
+
+| Question | Answer |
+|---|---|
+| Does adding MRI beat clinical history alone? | No. All good models score about 0.90 AUROC; MRI adds almost nothing on top of 3 years of visits. |
+| Does the proposed model beat standard fusion? (H1) | Tied on cohort A. On the messy-hospital cohort B it is significantly better than early fusion (+0.007), but below the pre-set 0.02 "meaningful" bar, so H1 is officially not supported. |
+| Does it lose less when MRI is removed? (H2) | Not supported. |
+| Do the design ideas help? | Yes. Modality dropout, the consistency loss and the reliability gate each give small but significant gains on **both** new cohorts. |
+| Is it better than classical ML? | Yes. +0.023 to +0.026 AUROC over gradient boosting, significant on both cohorts. |
+| Are the probabilities honest? | Yes. ECE about 0.02 after temperature scaling. |
+| Does the uncertainty (conformal) work? | Only partly. Coverage is below 90% because the calibration group (91 people) happened to contain fewer late-MCI patients than the test groups. Reported as a limitation. |
+| Are explanations stable? | Feature explanations yes (Spearman 0.92 across seeds). Grad-CAM brain heatmaps no: they look much like heatmaps from a random network. |
+| Secondary outcomes | Best CDR-SB prediction error (0.88 points) and best C-index of all models. |
+
+**How to say it to judges:** "My reliability-aware model does not make fusion
+more accurate when the clinical history already carries the signal, but its
+training strategy makes fusion *safer*. At a site with bad MRI scans,
+ordinary fusion becomes worse than ignoring the MRI, while my model does not.
+Every claim was tested on new data under rules I fixed in advance."
+
+---
+
+## 6. Key terms in one line each
 
 * **AUROC** – probability that a random converter gets a higher risk score
   than a random non-converter.
@@ -164,7 +206,7 @@ labelled "research prototype – not for diagnosis".
 
 ---
 
-## 5. Likely judge questions and short answers
+## 7. Likely judge questions and short answers
 
 **Q: Why not use real patient data?**
 ADNI needs an approved data use agreement. The pipeline reads the official
