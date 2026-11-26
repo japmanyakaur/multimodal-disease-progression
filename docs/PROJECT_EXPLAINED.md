@@ -217,8 +217,9 @@ leakage checks, before touching restricted data.
 **Q: Why MRI measurements instead of raw images?**
 The thesis allows "validated image-derived measures" (Table 5.1). Volumes such
 as the hippocampus are the standard, clinically meaningful MRI markers of
-Alzheimer's, they are already in ADNIMERGE, and they run on a laptop. A 3D CNN
-on raw scans is listed as future work.
+Alzheimer's, they are already in ADNIMERGE, and they run on a laptop. Stage 2
+also trains a small 3D CNN on simulated brain volumes (with Grad-CAM heatmaps);
+running it on real raw ADNI scans needs image-level access and is future work.
 
 **Q: How do you prevent leakage?**
 Patient-level splits, a strict date cut-off for inputs, preprocessing fitted on
